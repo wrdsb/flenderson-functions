@@ -98,11 +98,18 @@ module.exports = function (context, data) {
         locationsArray.push(locationsObject[location]);
     });
 
-    // Write out arrays to blobs
-    context.bindings.peopleNow = JSON.stringify(peopleArray);
-    context.bindings.jobsNow = JSON.stringify(jobsArray);
-    context.bindings.groupsNow = JSON.stringify(groupsArray);
-    context.bindings.locationsNow = JSON.stringify(locationsArray);
+    // Write out arrays and objects to blobs
+    context.bindings.peopleNowArray = JSON.stringify(peopleArray);
+    context.bindings.peopleNowObject = JSON.stringify(peopleObject);
+
+    context.bindings.jobsNowArray = JSON.stringify(jobsArray);
+    context.bindings.jobsNowObject = JSON.stringify(jobsObject);
+
+    context.bindings.groupsNowArray = JSON.stringify(groupsArray);
+    context.bindings.groupsNowObject = JSON.stringify(groupsObject);
+
+    context.bindings.locationsNowArray = JSON.stringify(locationsArray);
+    context.bindings.locationsNowObject = JSON.stringify(locationsObject);
 
     context.done();
 };

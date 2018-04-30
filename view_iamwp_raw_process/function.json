@@ -17,30 +17,58 @@
       "direction": "in"
     },
     {
-      "name": "peopleNow",
+      "name": "peopleNowArray",
       "type": "blob",
-      "path": "ipps/people-now.json",
+      "path": "ipps/people-now-array.json",
       "connection": "wrdsbflenderson_STORAGE",
       "direction": "out"
     },
     {
-      "name": "jobsNow",
+      "name": "peopleNowObject",
       "type": "blob",
-      "path": "ipps/jobs-now.json",
+      "path": "ipps/people-now-object.json",
       "connection": "wrdsbflenderson_STORAGE",
       "direction": "out"
     },
     {
-      "name": "groupsNow",
+      "name": "jobsNowArray",
       "type": "blob",
-      "path": "ipps/groups-now.json",
+      "path": "ipps/jobs-now-array.json",
       "connection": "wrdsbflenderson_STORAGE",
       "direction": "out"
     },
     {
-      "name": "locationsNow",
+      "name": "jobsNowObject",
       "type": "blob",
-      "path": "ipps/locations-now.json",
+      "path": "ipps/jobs-now-object.json",
+      "connection": "wrdsbflenderson_STORAGE",
+      "direction": "out"
+    },
+    {
+      "name": "groupsNowArray",
+      "type": "blob",
+      "path": "ipps/groups-now-array.json",
+      "connection": "wrdsbflenderson_STORAGE",
+      "direction": "out"
+    },
+    {
+      "name": "groupsNowObject",
+      "type": "blob",
+      "path": "ipps/groups-now-object.json",
+      "connection": "wrdsbflenderson_STORAGE",
+      "direction": "out"
+    },
+    {
+      "name": "locationsNowArray",
+      "type": "blob",
+      "path": "ipps/locations-now-array.json",
+      "connection": "wrdsbflenderson_STORAGE",
+      "direction": "out"
+    },
+    {
+      "name": "locationsNowObject",
+      "type": "blob",
+      "path": "ipps/locations-now-object.json",
       "connection": "wrdsbflenderson_STORAGE",
       "direction": "out"
     },
