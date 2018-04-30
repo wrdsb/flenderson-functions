@@ -1,0 +1,2 @@
+# View IAMWP Raw Process
+Process the blob ipps/view-iamwp-raw.json, converting raw database records into IPPS Person, IPPS Job, IPPS Group, and IPPS Location objects and storing those objects in their respective {type}-now.json blob.

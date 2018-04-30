@@ -1,0 +1,54 @@
+{
+  "bindings": [
+    {
+      "name": "req",
+      "type": "httpTrigger",
+      "webHookType": "genericJson",
+      "direction": "in",
+      "methods": [
+        "post"
+      ]
+    },
+    {
+      "name": "iamwpRaw",
+      "type": "blob",
+      "path": "ipps/view-iamwp-raw.json",
+      "connection": "wrdsbflenderson_STORAGE",
+      "direction": "in"
+    },
+    {
+      "name": "peopleNow",
+      "type": "blob",
+      "path": "ipps/people-now.json",
+      "connection": "wrdsbflenderson_STORAGE",
+      "direction": "out"
+    },
+    {
+      "name": "jobsNow",
+      "type": "blob",
+      "path": "ipps/jobs-now.json",
+      "connection": "wrdsbflenderson_STORAGE",
+      "direction": "out"
+    },
+    {
+      "name": "groupsNow",
+      "type": "blob",
+      "path": "ipps/groups-now.json",
+      "connection": "wrdsbflenderson_STORAGE",
+      "direction": "out"
+    },
+    {
+      "name": "locationsNow",
+      "type": "blob",
+      "path": "ipps/locations-now.json",
+      "connection": "wrdsbflenderson_STORAGE",
+      "direction": "out"
+    },
+    {
+      "name": "res",
+      "type": "http",
+      "direction": "out"
+    }
+  ],
+  "disabled": false
+}
