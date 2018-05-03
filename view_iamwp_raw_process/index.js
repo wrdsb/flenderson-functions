@@ -1,4 +1,6 @@
 module.exports = function (context, data) {
+    var execution_timestamp = (new Date()).toJSON();  // format: 2012-04-23T18:25:43.511Z
+
     var rows = context.bindings.iamwpRaw;
 
     var peopleObject = {};
@@ -111,5 +113,61 @@ module.exports = function (context, data) {
     context.bindings.locationsNowArray = JSON.stringify(locationsArray);
     context.bindings.locationsNowObject = JSON.stringify(locationsObject);
 
+    var event_type = "flenderson_processes_ipps_view_iamwp_raw"
+    var event = {
+        id: event_type +'-'+ execution_timestamp,
+        eventType: event_type,
+        eventTime: execution_timestamp,
+        data: {
+            event_type: event_type,
+            app: 'wrdsb-flenderson',
+            function_name: context.executionContext.functionName,
+            invocation_id: context.executionContext.invocationId,
+            result: {
+                blobs: [
+                    {
+                        path: "ipps/people-now-array.json",
+                        connection: "wrdsbflenderson_STORAGE"
+                    },
+                    {
+                        path: "ipps/people-now-object.json",
+                        connection: "wrdsbflenderson_STORAGE"
+                    },
+                    {
+                        path: "ipps/jobs-now-array.json",
+                        connection: "wrdsbflenderson_STORAGE"
+                    },
+                    {
+                        path: "ipps/jobs-now-object.json",
+                        connection: "wrdsbflenderson_STORAGE"
+                    },
+                    {
+                        path: "ipps/groups-now-array.json",
+                        connection: "wrdsbflenderson_STORAGE"
+                    },
+                    {
+                        path: "ipps/groups-now-object.json",
+                        connection: "wrdsbflenderson_STORAGE"
+                    },
+                    {
+                        path: "ipps/locations-now-array.json",
+                        connection: "wrdsbflenderson_STORAGE"
+                    },
+                    {
+                        path: "ipps/locations-now-object.json",
+                        connection: "wrdsbflenderson_STORAGE"
+                    }
+                ]
+            },
+            timestamp: execution_timestamp
+        },
+        dataVersion: '1'
+    };
+
+    context.bindings.flynnGrid = event;
+    context.res = {
+        status: 200,
+        body: event
+    };
     context.done();
 };

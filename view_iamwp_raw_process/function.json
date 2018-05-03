@@ -73,6 +73,13 @@
       "direction": "out"
     },
     {
+      "name": "flynnGrid",
+      "type": "eventHub",
+      "path": "flynn-events",
+      "connection": "wrdsb-flynn_EVENTHUB",
+      "direction": "out"
+    },
+    {
       "name": "res",
       "type": "http",
       "direction": "out"
