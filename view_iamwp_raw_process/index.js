@@ -113,14 +113,24 @@ module.exports = function (context, data) {
     context.bindings.locationsNowArray = JSON.stringify(locationsArray);
     context.bindings.locationsNowObject = JSON.stringify(locationsObject);
 
-    var event_type = "flenderson_processes_ipps_view_iamwp_raw"
+    var event_type = "ca.wrdsb.flenderson.ipps_view_iamwp.process";
     var event = {
-        id: event_type +'-'+ execution_timestamp,
+        eventID: `${event_type}-${context.executionContext.invocationId}`,
         eventType: event_type,
-        eventTime: execution_timestamp,
-        data: {
-            event_type: event_type,
+        source: "/ipps/view/iamwp/process",
+        schemaURL: "ca.wrdsb.flenderson.ipps_view_iamwp.process.json",
+        extensions: {
             app: 'wrdsb-flenderson',
+            label: "flenderson processes ipps_view_iamwp",
+            tags: [
+                "flenderson",
+                "ipps",
+                "ipps_view",
+                "ipps_view_iamwp",
+                "process"
+            ]
+        },
+        data: {
             function_name: context.executionContext.functionName,
             invocation_id: context.executionContext.invocationId,
             result: {
@@ -159,9 +169,11 @@ module.exports = function (context, data) {
                     }
                 ]
             },
-            timestamp: execution_timestamp
         },
-        dataVersion: '1'
+        eventTime: execution_timestamp,
+        eventTypeVersion: "0.1",
+        cloudEventsVersion: "0.1",
+        contentType: "application/json"
     };
 
     context.bindings.flynnGrid = event;
