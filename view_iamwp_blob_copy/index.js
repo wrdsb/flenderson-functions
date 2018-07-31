@@ -1,7 +1,8 @@
 module.exports = function (context, data) {
     var execution_timestamp = (new Date()).toJSON();  // format: 2012-04-23T18:25:43.511Z
 
-    context.bindings.outBlob = JSON.stringify(context.bindings.inBlob);
+    var inBlob = context.bindings.inBlob;
+    context.bindings.outBlob = JSON.stringify(inBlob);
 
     var event_type = "ca.wrdsb.flenderson.ipps.views.iamwp.blob.copy";
     var event = {
