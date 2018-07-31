@@ -1,11 +1,8 @@
 module.exports = function (context, data) {
     var execution_timestamp = (new Date()).toJSON();  // format: 2012-04-23T18:25:43.511Z
 
-    // Read in our source blob
-    var inBlob = context.bindings.inBlob;
-
-    // Write out our destination blob
-    context.bindings.outBlob = inBlob;
+    // Copy inBlob to outBlob
+    context.bindings.outBlob = context.bindings.inBlob;
 
     var event_type = "ca.wrdsb.flenderson.ipps.views.staffdir.blob.copy";
     var event = {
