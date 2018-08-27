@@ -13,8 +13,9 @@ module.exports = function (context, data) {
     var locationsArray = [];
 
     rows.forEach(function(row) {
+        // If we're missing an EIN or Position ID, bail
         if (!row.ipps_ein || !row.ipps_position_id) {
-            continue;
+            return;
         }
 
         // Create the main part of a Person object
