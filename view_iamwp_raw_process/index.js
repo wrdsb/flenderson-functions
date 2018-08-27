@@ -27,29 +27,29 @@ module.exports = function (context, data) {
 
         // Create the Position object for this row
         var personPosition = {
-            ipps_ein:                         row.ipps_ein,
-            ipps_activity_code:               row.ipps_activity_code,
-            ipps_employee_group_category:     row.ipps_employee_group_category,
-            ipps_employee_group_code:         row.ipps_employee_group_code,
-            ipps_employee_group_description:  row.ipps_employee_group_description,
-            ipps_extension:                   row.ipps_extension,
-            ipps_job_code:                    row.ipps_job_code,
-            ipps_job_description:             row.ipps_job_description,
-            ipps_location_code:               row.ipps_location_code,
-            ipps_location_description:        row.ipps_location_description,
-            ipps_panel:                       row.ipps_panel,
-            ipps_phone_no:                    row.ipps_phone_no,
-            ipps_school_code:                 row.ipps_school_code,
-            ipps_school_type:                 row.ipps_school_type,
-            ipps_home_location_indicator:     row.ipps_home_location_indicator,
-            ipps_position_id:                 row.ipps_position_id,
-            ipps_position_start_date:         row.ipps_position_start_date,
-            ipps_position_end_date:           row.ipps_position_end_date
+            ipps_ein:                         (row.ipps_ein ? row.ipps_ein : ''),
+            ipps_activity_code:               (row.ipps_activity_code ? row.ipps_activity_code : ''),
+            ipps_employee_group_category:     (row.ipps_employee_group_category ? row.ipps_employee_group_category : ''),
+            ipps_employee_group_code:         (row.ipps_employee_group_code ? row.ipps_employee_group_code : ''),
+            ipps_employee_group_description:  (row.ipps_employee_group_description ? row.ipps_employee_group_description : ''),
+            ipps_extension:                   (row.ipps_extension ? row.ipps_extension : ''),
+            ipps_job_code:                    (row.ipps_job_code ? row.ipps_job_code : ''),
+            ipps_job_description:             (row.ipps_job_description ? row.ipps_job_description : ''),
+            ipps_location_code:               (row.ipps_location_code ? row.ipps_location_code : ''),
+            ipps_location_description:        (row.ipps_location_description ? row.ipps_location_description : ''),
+            ipps_panel:                       (row.ipps_panel ? row.ipps_panel : ''),
+            ipps_phone_no:                    (row.ipps_phone_no ? row.ipps_phone_no : ''),
+            ipps_school_code:                 (row.ipps_school_code ? row.ipps_school_code : ''),
+            ipps_school_type:                 (row.ipps_school_type ? row.ipps_school_type : ''),
+            ipps_home_location_indicator:     (row.ipps_home_location_indicator ? row.ipps_home_location_indicator : ''),
+            ipps_position_id:                 (row.ipps_position_id ? row.ipps_position_id : ''),
+            ipps_position_start_date:         (row.ipps_position_start_date ? row.ipps_position_start_date : ''),
+            ipps_position_end_date:           (row.ipps_position_end_date ? row.ipps_position_end_date : '')
         };
 
         // Grab what will become our object identifiers
         var ein = personRecord.ein;
-        var position_id = personRecord.personPosition.ipps_position_id;
+        var position_id = personPosition.ipps_position_id;
 
         // Upsert Person, and current Position, to people collection object
         if (peopleObject[ein]) {
