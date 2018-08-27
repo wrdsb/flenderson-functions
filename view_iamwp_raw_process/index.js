@@ -15,14 +15,14 @@ module.exports = function (context, data) {
     rows.forEach(function(row) {
         // Create the main part of a Person object
         var personRecord = {
-            id:             row.ipps_ein,
-            ein:            row.ipps_ein,
-            username:       row.username.toLowerCase(),
-            name:           row.first_name + ' ' + row.last_name,
-            sortable_name:  row.last_name + ', ' + row.first_name,
-            first_name:     row.first_name,
-            last_name:      row.last_name,
-            email:          row.email
+            id:             (row.ipps_ein ? row.ipps_ein : ''),
+            ein:            (row.ipps_ein ? row.ipps_ein : ''),
+            username:       (row.username ? row.username.toLowerCase() : ''),
+            name:           (row.first_name ? row.first_name + ' ' + row.last_name : ''),
+            sortable_name:  (row.last_name ? row.last_name + ', ' + row.first_name : ''),
+            first_name:     (row.first_name ? row.first_name : ''),
+            last_name:      (row.last_name ? row.last_name : ''),
+            email:          (row.email ? row.email : '')
         };
 
         // Create the Position object for this row
@@ -48,8 +48,8 @@ module.exports = function (context, data) {
         };
 
         // Grab what will become our object identifiers
-        var ein = row.ipps_ein;
-        var position_id = row.ipps_position_id;
+        var ein = personRecord.ein;
+        var position_id = personRecord.personPosition.ipps_position_id;
 
         // Upsert Person, and current Position, to people collection object
         if (peopleObject[ein]) {
