@@ -13,10 +13,14 @@ module.exports = function (context, data) {
     var locationsArray = [];
 
     rows.forEach(function(row) {
+        if (!row.ipps_ein || !row.ipps_position_id) {
+            continue;
+        }
+
         // Create the main part of a Person object
         var personRecord = {
-            id:             (row.ipps_ein ? row.ipps_ein : ''),
-            ein:            (row.ipps_ein ? row.ipps_ein : ''),
+            id:             row.ipps_ein,
+            ein:            row.ipps_ein,
             username:       (row.username ? row.username.toLowerCase() : ''),
             name:           (row.first_name ? row.first_name + ' ' + row.last_name : ''),
             sortable_name:  (row.last_name ? row.last_name + ', ' + row.first_name : ''),
@@ -27,7 +31,8 @@ module.exports = function (context, data) {
 
         // Create the Position object for this row
         var personPosition = {
-            ipps_ein:                         (row.ipps_ein ? row.ipps_ein : ''),
+            ipps_ein:                         row.ipps_ein,
+            ipps_position_id:                 row.ipps_position_id,
             ipps_activity_code:               (row.ipps_activity_code ? row.ipps_activity_code : ''),
             ipps_employee_group_category:     (row.ipps_employee_group_category ? row.ipps_employee_group_category : ''),
             ipps_employee_group_code:         (row.ipps_employee_group_code ? row.ipps_employee_group_code : ''),
@@ -42,7 +47,6 @@ module.exports = function (context, data) {
             ipps_school_code:                 (row.ipps_school_code ? row.ipps_school_code : ''),
             ipps_school_type:                 (row.ipps_school_type ? row.ipps_school_type : ''),
             ipps_home_location_indicator:     (row.ipps_home_location_indicator ? row.ipps_home_location_indicator : ''),
-            ipps_position_id:                 (row.ipps_position_id ? row.ipps_position_id : ''),
             ipps_position_start_date:         (row.ipps_position_start_date ? row.ipps_position_start_date : ''),
             ipps_position_end_date:           (row.ipps_position_end_date ? row.ipps_position_end_date : '')
         };
