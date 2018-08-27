@@ -14,42 +14,42 @@ module.exports = function (context, data) {
 
     rows.forEach(function(row) {
         // If we're missing an EIN or Position ID, bail
-        if (!row.ipps_ein || !row.ipps_position_id) {
+        if (!row.EMPLOYEE_ID || !row.POSITION_ID) {
             return;
         }
 
         // Create the main part of a Person object
         var personRecord = {
-            id:             row.ipps_ein,
-            ein:            row.ipps_ein,
-            username:       (row.username ? row.username.toLowerCase() : ''),
-            name:           (row.first_name ? row.first_name + ' ' + row.last_name : ''),
-            sortable_name:  (row.last_name ? row.last_name + ', ' + row.first_name : ''),
-            first_name:     (row.first_name ? row.first_name : ''),
-            last_name:      (row.last_name ? row.last_name : ''),
-            email:          (row.email ? row.email : '')
+            id:             row.EMPLOYEE_ID,
+            ein:            row.EMPLOYEE_ID,
+            username:       (row.USERNAME ? row.USERNAME.toLowerCase() : ''),
+            name:           row.FIRST_NAME,
+            sortable_name:  row.SURNAME,
+            first_name:     row.FIRST_NAME,
+            last_name:      row.SURNAME,
+            email:          row.EMAIL_ADDRESS
         };
 
         // Create the Position object for this row
         var personPosition = {
-            ipps_ein:                         row.ipps_ein,
-            ipps_position_id:                 row.ipps_position_id,
-            ipps_activity_code:               (row.ipps_activity_code ? row.ipps_activity_code : ''),
-            ipps_employee_group_category:     (row.ipps_employee_group_category ? row.ipps_employee_group_category : ''),
-            ipps_employee_group_code:         (row.ipps_employee_group_code ? row.ipps_employee_group_code : ''),
-            ipps_employee_group_description:  (row.ipps_employee_group_description ? row.ipps_employee_group_description : ''),
-            ipps_extension:                   (row.ipps_extension ? row.ipps_extension : ''),
-            ipps_job_code:                    (row.ipps_job_code ? row.ipps_job_code : ''),
-            ipps_job_description:             (row.ipps_job_description ? row.ipps_job_description : ''),
-            ipps_location_code:               (row.ipps_location_code ? row.ipps_location_code : ''),
-            ipps_location_description:        (row.ipps_location_description ? row.ipps_location_description : ''),
-            ipps_panel:                       (row.ipps_panel ? row.ipps_panel : ''),
-            ipps_phone_no:                    (row.ipps_phone_no ? row.ipps_phone_no : ''),
-            ipps_school_code:                 (row.ipps_school_code ? row.ipps_school_code : ''),
-            ipps_school_type:                 (row.ipps_school_type ? row.ipps_school_type : ''),
-            ipps_home_location_indicator:     (row.ipps_home_location_indicator ? row.ipps_home_location_indicator : ''),
-            ipps_position_start_date:         (row.ipps_position_start_date ? row.ipps_position_start_date : ''),
-            ipps_position_end_date:           (row.ipps_position_end_date ? row.ipps_position_end_date : '')
+            ipps_ein:                         row.EMPLOYEE_ID,
+            ipps_position_id:                 row.POSITION_ID,
+            ipps_activity_code:               row.ACTIVITY_CODE,
+            ipps_employee_group_category:     row.EMP_GROUP_CATEGORY,
+            ipps_employee_group_code:         row.EMP_GROUP_CODE,
+            ipps_employee_group_description:  row.EMP_GROUP_DESC,
+            ipps_extension:                   row.EXTENSION,
+            ipps_job_code:                    row.JOB_CODE,
+            ipps_job_description:             row.JOB_DESC,
+            ipps_location_code:               row.LOCATION_CODE,
+            ipps_location_description:        row.LOCATION_DESC,
+            ipps_panel:                       row.PANEL,
+            ipps_phone_no:                    row.PHONE_NO,
+            ipps_school_code:                 row.SCHOOL_CODE,
+            ipps_school_type:                 row.SCHOOL_TYPE,
+            ipps_home_location_indicator:     row.HOME_LOC_IND,
+            ipps_position_start_date:         row.POSITION_START_DATE,
+            ipps_position_end_date:           row.POSITION_END_DATE
         };
 
         // Grab what will become our object identifiers
@@ -68,18 +68,18 @@ module.exports = function (context, data) {
         }
 
         // Add/overwrite jobs, groups, and locations from this row to their collection objects
-        jobsObject[row.ipps_job_code] = {
-            job_code: row.ipps_job_code,
-            job_description: row.ipps_job_description,
+        jobsObject[personPosition.ipps_job_code] = {
+            job_code: personPosition.ipps_job_code,
+            job_description: personPosition.ipps_job_description,
         };
-        groupsObject[row.ipps_employee_group_code] = {
-            employee_group_category: row.ipps_employee_group_category,
-            employee_group_code: row.ipps_employee_group_code,
-            employee_group_description: row.ipps_employee_group_description,
+        groupsObject[personPosition.ipps_employee_group_code] = {
+            employee_group_category: personPosition.ipps_employee_group_category,
+            employee_group_code: personPosition.ipps_employee_group_code,
+            employee_group_description: personPosition.ipps_employee_group_description,
         };
-        locationsObject[row.ipps_location_code] = {
-            location_code: row.ipps_location_code,
-            location_description: row.ipps_location_description,
+        locationsObject[personPosition.ipps_location_code] = {
+            location_code: personPosition.ipps_location_code,
+            location_description: personPosition.ipps_location_description,
         };
     });
 
