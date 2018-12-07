@@ -1,0 +1,26 @@
+{
+    "bindings": [
+        {
+            "name": "req",
+            "type": "httpTrigger",
+            "webHookType": "genericJson",
+            "direction": "in",
+            "methods": [
+                "post"
+            ]
+        },
+        {
+            "name": "iamwpRaw",
+            "type": "blob",
+            "path": "ipps/view-iamwp-raw.json",
+            "connection": "wrdsbflenderson_STORAGE",
+            "direction": "in"
+        },
+        {
+            "name": "res",
+            "type": "http",
+            "direction": "out"
+        }
+    ],
+    "disabled": false
+}
