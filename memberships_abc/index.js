@@ -28,8 +28,8 @@ module.exports = function (context, data) {
         // If we're missing required fields, bail
         if (
                 (!row.EMAIL_ADDRESS || !row.JOB_CODE || !row.EMP_GROUP_CODE || !row.LOCATION_CODE || !row.PANEL || !row.SCHOOL_CODE || !row.ACTIVITY_CODE)
-                || !excluded_job_codes.includes(row.JOB_CODE)
-                || !isNaN(row.SCHOOL_CODE)
+                || excluded_job_codes.includes(row.JOB_CODE)
+                || isNaN(row.SCHOOL_CODE)
             ) {
             return;
         }
@@ -39,7 +39,7 @@ module.exports = function (context, data) {
         var group_code = row.EMP_GROUP_CODE;
         var location_code = row.LOCATION_CODE;
         var panel = row.PANEL;
-        var school_code = row.SCHOOL_CODE;
+        var school_code = row.SCHOOL_CODE.toLowerCase();
         var activity_code = row.ACTIVITY_CODE;
 
         if (!members[school_code]) {
