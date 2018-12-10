@@ -13,6 +13,7 @@ module.exports = function (context, data) {
     var activity_codes = ['ACTIVE', 'ONLEAVE'];
 
     var members = {};
+    var blob_results = [];
 
     var cama_group_codes = ['6570','6920','6570CMH'];
     var dece_group_codes = ['ECE','ECELT','ECEOCCL','FLOA-ECE'];
@@ -28,7 +29,7 @@ module.exports = function (context, data) {
     var smaca_group_codes = ['6550','6854','6854T','CAFASST','CAFSUPPL'];
     var smaca_elementary_group_codes = ['6550','6854','6854T','CAFASST','CAFSUPPL'];
     var smaca_secondary_group_codes = ['6550','6854','6854T','CAFASST','CAFSUPPL'];
-        
+
     rows.forEach(function(row) {
         if (row.EMAIL_ADDRESS
             && row.JOB_CODE
@@ -220,23 +221,34 @@ module.exports = function (context, data) {
         }
     });
 
-    Object.getOwnPropertyNames(members).forEach(function (group_slug) {
-        var blob_name = group_slug +'@wrdsb.ca.json';
-        var memberships = JSON.stringify(members[group_slug]);
+    blob_results = await create_blobs(members, blob_results);
+    context.res = {
+        status: 200,
+        body: blob_results
+    };
+    context.done();
 
+    async function create_blobs(members, blob_results) {
+        Object.getOwnPropertyNames(members).forEach(function (group_slug) {
+            var blob_name = group_slug +'@wrdsb.ca.json';
+            var memberships = JSON.stringify(members[group_slug]);
+            var upload_result = await upload_blob(container, blob_name, memberships);
+            blob_results.push(upload_result);
+        });
+        return blob_results;
+    }
+
+    async function upload_blob(container, blob_name, memberships) {
         blobService.createBlockBlobFromText(container, blob_name, memberships, function(error, result, response) {
             if (!error) {
                 context.log(blob_name + ' uploaded');
                 context.log(result);
                 context.log(response);
+                return result;
             } else {
                 context.log(error);
+                return error;
             }
         });
-    });
-
-    context.res = {
-        status: 200
-    };
-    context.done();
+    }
 };
