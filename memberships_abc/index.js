@@ -4,7 +4,7 @@ module.exports = function (context, data) {
     var azure = require('azure-storage');
     var blobService = azure.createBlobService(
         'wrdsbflenderson',
-        process.env['wrdsbflenderson_STORAGE']
+        process.env['wrdsbflenderson_STORAGE_KEY']
     );
 
     var container = 'groups-memberships-ipps';
