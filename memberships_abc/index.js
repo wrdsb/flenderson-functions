@@ -7,7 +7,7 @@ module.exports = function (context, data) {
         process.env['wrdsbflenderson_STORAGE_KEY']
     );
 
-    var container = 'groups-memberships-ipps';
+    var container = 'groups-memberships-ipps-now';
     var rows = context.bindings.iamwpRaw;
     var excluded_job_codes = ['6106', '6118'];
 
