@@ -12,94 +12,49 @@ module.exports = function (context, data) {
     var excluded_job_codes = ['6106', '6118'];
     var activity_codes = ['ACTIVE', 'ONLEAVE'];
 
-    var members = {};
-    members['all-staff'] = {};
-    members['bereavements'] = {};
-    members['retirements'] = {};
-    members['severe-weather'] = {};
-    members['staff-opportunities'] = {};
+    var groups = [
+        'all-staff',
+        'bereavements',
+        'retirements',
+        'severe-weather',
+        'staff-opportunities'
+    ];
+
+    var members = [];
 
     rows.forEach(function(row) {
         if (row.EMAIL_ADDRESS 
             && !excluded_job_codes.includes(row.JOB_CODE)
             && activity_codes.includes(row.ACTIVITY_CODE)
         ) {
-
-            var email = row.EMAIL_ADDRESS;
-
-            members['all-staff'][email] = {
-                email:          email,
-                role:           "MEMBER",
-                status:         "ACTIVE",
-                type:           "USER",
-                groupKey:       "all-staff@wrdsb.ca"
-            };
-
-            members['bereavements'][email] = {
-                email:          email,
-                role:           "MEMBER",
-                status:         "ACTIVE",
-                type:           "USER",
-                groupKey:       "bereavements@wrdsb.ca"
-            };
-
-            members['retirements'][email] = {
-                email:          email,
-                role:           "MEMBER",
-                status:         "ACTIVE",
-                type:           "USER",
-                groupKey:       "retirements@wrdsb.ca"
-            };
-
-            members['severe-weather'][email] = {
-                email:          email,
-                role:           "MEMBER",
-                status:         "ACTIVE",
-                type:           "USER",
-                groupKey:       "severe-weather@wrdsb.ca"
-            };
-
-            members['staff-opportunities'][email] = {
-                email:          email,
-                role:           "MEMBER",
-                status:         "ACTIVE",
-                type:           "USER",
-                groupKey:       "staff-opportunities@wrdsb.ca"
-            };
+            members.push(row.EMAIL_ADDRESS);
         }
     });
 
-    Object.getOwnPropertyNames(members).forEach(function (school_code) {
-        Object.getOwnPropertyNames(members[school_code]).forEach(function (group_slug) {
+    groups.forEach(function(group) {
+        var blob_name = group +'@wrdsb.ca.json';
+        var group_key = group +'@wrdsb.ca';
+        var memberships = {};
 
-            var blob_name = school_code +'-'+ group_slug +'@wrdsb.ca.json';
-            var memberships = JSON.stringify(members[school_code][group_slug]);
-            context.log(memberships);
-
-            blobService.createBlockBlobFromText(container, blob_name, memberships, function(error, result, response) {
-                if (!error) {
-                    context.log(blob_name + ' uploaded');
-                    context.log(result);
-                    context.log(response);
-                } else {
-                    context.log(error);
-                }
-            });
+        members.forEach(function(member) {
+            memberships[member] = {
+                email:          member,
+                role:           "MEMBER",
+                status:         "ACTIVE",
+                type:           "USER",
+                groupKey:       group_key
+            };
         });
-    });
 
-    Object.getOwnPropertyNames(public_members).forEach(function (school_code) {
-        var blob_name = school_code +'@wrdsb.ca.json';
-        var memberships = JSON.stringify(public_members[school_code]);
-        context.log(memberships);
+        memberships = JSON.stringify(memberships);
 
         blobService.createBlockBlobFromText(container, blob_name, memberships, function(error, result, response) {
             if (!error) {
-                    context.log(blob_name + ' uploaded');
-                    context.log(result);
-                    context.log(response);
+                context.log(blob_name + ' uploaded');
+                context.log(result);
+                context.log(response);
             } else {
-                    context.log(error);
+                context.log(error);
             }
         });
     });
