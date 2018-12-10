@@ -417,37 +417,17 @@ module.exports = function (context, data) {
     });
 
 
-    Object.getOwnPropertyNames(members).forEach(function (school_code) {
-        Object.getOwnPropertyNames(members[school_code]).forEach(function (group_slug) {
-
-            var blob_name = school_code +'-'+ group_slug +'@wrdsb.ca.json';
-            var memberships = JSON.stringify(members[school_code][group_slug]);
-            context.log(memberships);
-
-            blobService.createBlockBlobFromText(container, blob_name, memberships, function(error, result, response) {
-                if (!error) {
-                    context.log(blob_name + ' uploaded');
-                    context.log(result);
-                    context.log(response);
-                } else {
-                    context.log(error);
-                }
-            });
-        });
-    });
-
-    Object.getOwnPropertyNames(public_members).forEach(function (school_code) {
-        var blob_name = school_code +'@wrdsb.ca.json';
-        var memberships = JSON.stringify(public_members[school_code]);
-        context.log(memberships);
+    Object.getOwnPropertyNames(members).forEach(function (group_slug) {
+        var blob_name = group_slug +'@wrdsb.ca.json';
+        var memberships = JSON.stringify(members[group_slug]);
 
         blobService.createBlockBlobFromText(container, blob_name, memberships, function(error, result, response) {
             if (!error) {
-                    context.log(blob_name + ' uploaded');
-                    context.log(result);
-                    context.log(response);
+                context.log(blob_name + ' uploaded');
+                context.log(result);
+                context.log(response);
             } else {
-                    context.log(error);
+                context.log(error);
             }
         });
     });
