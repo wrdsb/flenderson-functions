@@ -1,4 +1,4 @@
-module.exports = function (context, data) {
+module.exports = async function (context, req) {
     var execution_timestamp = (new Date()).toJSON();  // format: 2012-04-23T18:25:43.511Z
 
     var azure = require('azure-storage');
@@ -238,7 +238,7 @@ module.exports = function (context, data) {
         return blob_results;
     }
 
-    async function upload_blob(container, blob_name, memberships) {
+    var upload_blob = async function(container, blob_name, memberships) {
         blobService.createBlockBlobFromText(container, blob_name, memberships, function(error, result, response) {
             if (!error) {
                 context.log(blob_name + ' uploaded');
@@ -250,5 +250,5 @@ module.exports = function (context, data) {
                 return error;
             }
         });
-    }
+    };
 };
