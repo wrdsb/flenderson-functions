@@ -8,5 +8,7 @@
     },
     "author": "",
     "license": "MIT",
-    "dependencies": {}
+    "dependencies": {
+        "azure-storage": "^2.10.2"
+    }
 }
