@@ -27,22 +27,26 @@ module.exports = async function (context) {
     var smaca_elementary_group_codes = ['6550','6854','6854T','CAFASST','CAFSUPPL'];
     var smaca_secondary_group_codes = ['6550','6854','6854T','CAFASST','CAFSUPPL'];
 
-    var calculated_members = calculateMembers(members, rows);
+    const calculated_members = await calculateMembers(rows);
+    const created_blobs = await parseMembers(calculated_members);
 
     return {
         status: 200,
-        body: await createBlobs(calculated_members)
+        body: created_blobs
     };
 
-    async function createBlobs(members) {
-        var blob_results = [];
-        Object.getOwnPropertyNames(members).forEach(function (group_slug) {
-            var blob_name = group_slug +'@wrdsb.ca.json';
-            var memberships = JSON.stringify(members[group_slug]);
-            var upload_result = await uploadBlob(container, blob_name, memberships);
-            blob_results.push(upload_result);
+    async function parseMembers(members) {
+        create_blob_results = [];
+        Object.getOwnPropertyNames(members).forEach(async function(group_slug) {
+            create_blob_results.push(await createBlob(container, calculated_members, group_slug));
         });
-        return blob_results;
+        return create_blob_results;
+    }
+
+    async function createBlob(container, members, group_slug) {
+        var blob_name = group_slug +'@wrdsb.ca.json';
+        var memberships = JSON.stringify(members[group_slug]);
+        return await uploadBlob(container, blob_name, memberships);
     }
 
     async function uploadBlob(container, blob_name, memberships) {
@@ -59,7 +63,7 @@ module.exports = async function (context) {
         });
     }
 
-    function calculateMembers (rows) {
+    async function calculateMembers (rows) {
         var members = {};
 
         rows.forEach(function(row) {
