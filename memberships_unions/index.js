@@ -28,11 +28,10 @@ module.exports = async function (context) {
     var smaca_secondary_group_codes = ['6550','6854','6854T','CAFASST','CAFSUPPL'];
 
     var calculated_members = calculateMembers(members, rows);
-    var created_blobs = await createBlobs(calculated_members);
 
-    context.res = {
+    return {
         status: 200,
-        body: created_blobs
+        body: await createBlobs(calculated_members)
     };
 
     async function createBlobs(members) {
@@ -46,7 +45,7 @@ module.exports = async function (context) {
         return blob_results;
     }
 
-    async function uploadBlob (container, blob_name, memberships) {
+    async function uploadBlob(container, blob_name, memberships) {
         blobService.createBlockBlobFromText(container, blob_name, memberships, function(error, result, response) {
             if (!error) {
                 console.log(blob_name + ' uploaded');
