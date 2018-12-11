@@ -52,8 +52,8 @@ module.exports = async function (context) {
     async function parseStaffMembers(members) {
         var create_blob_results = [];
 
-        Object.getOwnPropertyNames(members).forEach(function (school_code) {
-            Object.getOwnPropertyNames(members[school_code]).forEach(function (group_slug) {
+        Object.getOwnPropertyNames(members).forEach(async function (school_code) {
+            Object.getOwnPropertyNames(members[school_code]).forEach(async function (group_slug) {
                 var blob_name = school_code +'-'+ group_slug +'@wrdsb.ca.json';
                 var memberships = JSON.stringify(members[school_code][group_slug]);
                 var result = await createBlob(container, blob_name, memberships);
@@ -67,7 +67,7 @@ module.exports = async function (context) {
     async function parsePublicMembers(members) {
         var create_blob_results = [];
 
-        Object.getOwnPropertyNames(members).forEach(function (school_code) {
+        Object.getOwnPropertyNames(members).forEach(async function (school_code) {
             var blob_name = school_code +'@wrdsb.ca.json';
             var memberships = JSON.stringify(members[school_code]);
             var result = await createBlob(container, blob_name, memberships);
