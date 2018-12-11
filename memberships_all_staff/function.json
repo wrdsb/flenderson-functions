@@ -1,10 +1,13 @@
 {
     "bindings": [
         {
-            "schedule": "0 0 9-17 * * *",
-            "name": "myTimer",
-            "type": "timerTrigger",
-            "direction": "in"
+            "name": "req",
+            "type": "httpTrigger",
+            "authLevel": "function",
+            "direction": "in",
+            "methods": [
+                "post"
+            ]
         },
         {
             "name": "iamwpRaw",

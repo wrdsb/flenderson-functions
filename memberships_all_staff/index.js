@@ -1,4 +1,4 @@
-module.exports = async function (context) {
+module.exports = function (context) {
     var execution_timestamp = (new Date()).toJSON();  // format: 2012-04-23T18:25:43.511Z
     var rows = context.bindings.iamwpRaw;
 
