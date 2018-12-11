@@ -1,19 +1,16 @@
-module.exports = function (context, req) {
+module.exports = async function (context) {
     var execution_timestamp = (new Date()).toJSON();  // format: 2012-04-23T18:25:43.511Z
+    var rows = context.bindings.iamwpRaw;
+
+    var container = 'groups-memberships-ipps-now';
+    var excluded_job_codes = ['6106', '6118'];
+    var activity_codes = ['ACTIVE', 'ONLEAVE'];
 
     var azure = require('azure-storage');
     var blobService = azure.createBlobService(
         'wrdsbflenderson',
         process.env['wrdsbflenderson_STORAGE_KEY']
     );
-
-    var container = 'groups-memberships-ipps-now';
-    var rows = context.bindings.iamwpRaw;
-    var excluded_job_codes = ['6106', '6118'];
-    var activity_codes = ['ACTIVE', 'ONLEAVE'];
-
-    var members = {};
-    var blob_results = [];
 
     var cama_group_codes = ['6570','6920','6570CMH'];
     var dece_group_codes = ['ECE','ECELT','ECEOCCL','FLOA-ECE'];
@@ -30,39 +27,42 @@ module.exports = function (context, req) {
     var smaca_elementary_group_codes = ['6550','6854','6854T','CAFASST','CAFSUPPL'];
     var smaca_secondary_group_codes = ['6550','6854','6854T','CAFASST','CAFSUPPL'];
 
-    members = calculateMembers(members, rows);
-    var final_results = createBlobs(members, blob_results);
+    var calculated_members = calculateMembers(members, rows);
+    var created_blobs = await createBlobs(calculated_members);
+
     context.res = {
         status: 200,
-        body: final_results
+        body: created_blobs
     };
-    context.done();
 
-    function createBlobs(members, blob_results) {
+    async function createBlobs(members) {
+        var blob_results = [];
         Object.getOwnPropertyNames(members).forEach(function (group_slug) {
             var blob_name = group_slug +'@wrdsb.ca.json';
             var memberships = JSON.stringify(members[group_slug]);
-            var upload_result = uploadBlob(container, blob_name, memberships);
+            var upload_result = await uploadBlob(container, blob_name, memberships);
             blob_results.push(upload_result);
         });
         return blob_results;
     }
 
-    function uploadBlob (container, blob_name, memberships) {
+    async function uploadBlob (container, blob_name, memberships) {
         blobService.createBlockBlobFromText(container, blob_name, memberships, function(error, result, response) {
             if (!error) {
-                context.log(blob_name + ' uploaded');
-                context.log(result);
-                context.log(response);
+                console.log(blob_name + ' uploaded');
+                console.log(result);
+                console.log(response);
                 return result;
             } else {
-                context.log(error);
+                console.log(error);
                 return error;
             }
         });
     }
 
-    function calculateMembers (members, rows) {
+    function calculateMembers (rows) {
+        var members = {};
+
         rows.forEach(function(row) {
             if (row.EMAIL_ADDRESS
                 && row.JOB_CODE
@@ -255,4 +255,4 @@ module.exports = function (context, req) {
         });
         return members;
     }
-};
+}
