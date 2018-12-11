@@ -1,6 +1,5 @@
 module.exports = async function (context) {
     var execution_timestamp = (new Date()).toJSON();  // format: 2012-04-23T18:25:43.511Z
-    context.log(execution_timestamp);
     var rows = context.bindings.iamwpRaw;
 
     var container = 'groups-memberships-ipps-now';
@@ -77,7 +76,6 @@ module.exports = async function (context) {
                 && !excluded_job_codes.includes(row.JOB_CODE)
                 && activity_codes.includes(row.ACTIVITY_CODE)
             ) {
-
                 if (row.EMAIL_ADDRESS) {
                     var email = row.EMAIL_ADDRESS;
                 }

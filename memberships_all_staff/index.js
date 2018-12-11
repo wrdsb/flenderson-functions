@@ -1,16 +1,16 @@
 module.exports = function (context, data) {
     var execution_timestamp = (new Date()).toJSON();  // format: 2012-04-23T18:25:43.511Z
+    var rows = context.bindings.iamwpRaw;
+
+    var container = 'groups-memberships-ipps-now';
+    var excluded_job_codes = ['6106', '6118'];
+    var activity_codes = ['ACTIVE', 'ONLEAVE'];
 
     var azure = require('azure-storage');
     var blobService = azure.createBlobService(
         'wrdsbflenderson',
         process.env['wrdsbflenderson_STORAGE_KEY']
     );
-
-    var container = 'groups-memberships-ipps-now';
-    var rows = context.bindings.iamwpRaw;
-    var excluded_job_codes = ['6106', '6118'];
-    var activity_codes = ['ACTIVE', 'ONLEAVE'];
 
     var groups = [
         'all-staff',
