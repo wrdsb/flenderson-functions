@@ -221,10 +221,10 @@ module.exports = async function (context, req) {
         }
     });
 
-    blob_results = await create_blobs(members, blob_results);
+    var final_results = await create_blobs(members, blob_results);
     context.res = {
         status: 200,
-        body: blob_results
+        body: final_results
     };
     context.done();
 
@@ -238,7 +238,7 @@ module.exports = async function (context, req) {
         return blob_results;
     }
 
-    var upload_blob = async function(container, blob_name, memberships) {
+    async function upload_blob(container, blob_name, memberships) {
         blobService.createBlockBlobFromText(container, blob_name, memberships, function(error, result, response) {
             if (!error) {
                 context.log(blob_name + ' uploaded');
@@ -250,5 +250,5 @@ module.exports = async function (context, req) {
                 return error;
             }
         });
-    };
+    }
 };
