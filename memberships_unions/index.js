@@ -1,5 +1,6 @@
 module.exports = async function (context) {
     var execution_timestamp = (new Date()).toJSON();  // format: 2012-04-23T18:25:43.511Z
+    context.log(execution_timestamp);
     var rows = context.bindings.iamwpRaw;
 
     var container = 'groups-memberships-ipps-now';
@@ -27,18 +28,28 @@ module.exports = async function (context) {
     var smaca_elementary_group_codes = ['6550','6854','6854T','CAFASST','CAFSUPPL'];
     var smaca_secondary_group_codes = ['6550','6854','6854T','CAFASST','CAFSUPPL'];
 
-    const calculated_members = await calculateMembers(rows);
-    const created_blobs = await parseMembers(calculated_members);
+    var calculated_members = await calculateMembers(rows);
+    var blob_results = await parseMembers(calculated_members);
+
+    var response = [];
+    
+    blob_results.forEach(function(blob) {
+        response.push({
+            blob: blob.name,
+            size: blob.totalSize
+        });
+    });
 
     return {
         status: 200,
-        body: created_blobs
+        body: JSON.stringify(response)
     };
 
     async function parseMembers(members) {
-        create_blob_results = [];
+        var create_blob_results = [];
         Object.getOwnPropertyNames(members).forEach(async function(group_slug) {
-            create_blob_results.push(await createBlob(container, calculated_members, group_slug));
+            var result = await createBlob(container, calculated_members, group_slug);
+            create_blob_results.push(result);
         });
         return create_blob_results;
     }
@@ -46,21 +57,16 @@ module.exports = async function (context) {
     async function createBlob(container, members, group_slug) {
         var blob_name = group_slug +'@wrdsb.ca.json';
         var memberships = JSON.stringify(members[group_slug]);
-        return await uploadBlob(container, blob_name, memberships);
-    }
 
-    async function uploadBlob(container, blob_name, memberships) {
-        blobService.createBlockBlobFromText(container, blob_name, memberships, function(error, result, response) {
+        var result = blobService.createBlockBlobFromText(container, blob_name, memberships, function(error, result, response) {
             if (!error) {
-                console.log(blob_name + ' uploaded');
-                console.log(result);
-                console.log(response);
-                return result;
+                context.log(result);
+                context.log(response);
             } else {
-                console.log(error);
-                return error;
+                context.log(error);
             }
         });
+        return result;
     }
 
     async function calculateMembers (rows) {
@@ -68,24 +74,32 @@ module.exports = async function (context) {
 
         rows.forEach(function(row) {
             if (row.EMAIL_ADDRESS
-                && row.JOB_CODE
-                && row.EMP_GROUP_CODE
-                && row.LOCATION_CODE
-                && row.PANEL
-                && row.SCHOOL_CODE
-                && row.ACTIVITY_CODE
                 && !excluded_job_codes.includes(row.JOB_CODE)
                 && activity_codes.includes(row.ACTIVITY_CODE)
             ) {
 
-                var email = row.EMAIL_ADDRESS;
-                var job_code = row.JOB_CODE;
-                var group_code = row.EMP_GROUP_CODE;
-                var location_code = row.LOCATION_CODE;
-                var panel = row.PANEL;
-                var school_code = row.SCHOOL_CODE.toLowerCase();
-                var activity_code = row.ACTIVITY_CODE;
-
+                if (row.EMAIL_ADDRESS) {
+                    var email = row.EMAIL_ADDRESS;
+                }
+                if (row.JOB_CODE) {
+                    var job_code = row.JOB_CODE;
+                }
+                if (row.EMP_GROUP_CODE) {
+                    var group_code = row.EMP_GROUP_CODE;
+                }
+                if (row.LOCATION_CODE) {
+                    var location_code = row.LOCATION_CODE;
+                }
+                if (row.SCHOOL_CODE) {
+                    var school_code = row.SCHOOL_CODE.toLowerCase();
+                }
+                if (row.PANEL) {
+                    var panel = row.PANEL;
+                }
+                if (row.ACTIVITY_CODE) {
+                    var activity_code = row.ACTIVITY_CODE;
+                }
+              
                 if (cama_group_codes.includes(group_code)) {
                     if (!members['cama']) {
                         members['cama'] = {};
