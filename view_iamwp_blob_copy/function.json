@@ -26,7 +26,7 @@
     {
       "name": "flynnGrid",
       "type": "eventHub",
-      "path": "flynn-events",
+      "eventHubName": "flynn-events",
       "connection": "wrdsb-flynn_EVENTHUB",
       "direction": "out"
     },
