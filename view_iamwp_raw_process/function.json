@@ -1,89 +1,89 @@
 {
-  "bindings": [
-    {
-      "name": "req",
-      "type": "httpTrigger",
-      "webHookType": "genericJson",
-      "direction": "in",
-      "methods": [
-        "post"
-      ]
-    },
-    {
-      "name": "iamwpRaw",
-      "type": "blob",
-      "path": "ipps/view-iamwp-raw.json",
-      "connection": "wrdsbflenderson_STORAGE",
-      "direction": "in"
-    },
-    {
-      "name": "peopleNowArray",
-      "type": "blob",
-      "path": "ipps/people-now-array.json",
-      "connection": "wrdsbflenderson_STORAGE",
-      "direction": "out"
-    },
-    {
-      "name": "peopleNowObject",
-      "type": "blob",
-      "path": "ipps/people-now-object.json",
-      "connection": "wrdsbflenderson_STORAGE",
-      "direction": "out"
-    },
-    {
-      "name": "jobsNowArray",
-      "type": "blob",
-      "path": "ipps/jobs-now-array.json",
-      "connection": "wrdsbflenderson_STORAGE",
-      "direction": "out"
-    },
-    {
-      "name": "jobsNowObject",
-      "type": "blob",
-      "path": "ipps/jobs-now-object.json",
-      "connection": "wrdsbflenderson_STORAGE",
-      "direction": "out"
-    },
-    {
-      "name": "groupsNowArray",
-      "type": "blob",
-      "path": "ipps/groups-now-array.json",
-      "connection": "wrdsbflenderson_STORAGE",
-      "direction": "out"
-    },
-    {
-      "name": "groupsNowObject",
-      "type": "blob",
-      "path": "ipps/groups-now-object.json",
-      "connection": "wrdsbflenderson_STORAGE",
-      "direction": "out"
-    },
-    {
-      "name": "locationsNowArray",
-      "type": "blob",
-      "path": "ipps/locations-now-array.json",
-      "connection": "wrdsbflenderson_STORAGE",
-      "direction": "out"
-    },
-    {
-      "name": "locationsNowObject",
-      "type": "blob",
-      "path": "ipps/locations-now-object.json",
-      "connection": "wrdsbflenderson_STORAGE",
-      "direction": "out"
-    },
-    {
-      "name": "flynnGrid",
-      "type": "eventHub",
-      "eventHubName": "flynn-events",
-      "connection": "wrdsb-flynn_EVENTHUB",
-      "direction": "out"
-    },
-    {
-      "name": "res",
-      "type": "http",
-      "direction": "out"
-    }
-  ],
-  "disabled": false
+    "bindings": [
+        {
+            "name": "req",
+            "type": "httpTrigger",
+            "authLevel": "function",
+            "direction": "in",
+            "methods": [
+                "post"
+            ]
+        },
+        {
+            "name": "iamwpRaw",
+            "type": "blob",
+            "path": "ipps/view-iamwp-raw.json",
+            "connection": "wrdsbflenderson_STORAGE",
+            "direction": "in"
+        },
+        {
+            "name": "peopleNowArray",
+            "type": "blob",
+            "path": "ipps/people-now-array.json",
+            "connection": "wrdsbflenderson_STORAGE",
+            "direction": "out"
+        },
+        {
+            "name": "peopleNowObject",
+            "type": "blob",
+            "path": "ipps/people-now-object.json",
+            "connection": "wrdsbflenderson_STORAGE",
+            "direction": "out"
+        },
+        {
+            "name": "jobsNowArray",
+            "type": "blob",
+            "path": "ipps/jobs-now-array.json",
+            "connection": "wrdsbflenderson_STORAGE",
+            "direction": "out"
+        },
+        {
+            "name": "jobsNowObject",
+            "type": "blob",
+            "path": "ipps/jobs-now-object.json",
+            "connection": "wrdsbflenderson_STORAGE",
+            "direction": "out"
+        },
+        {
+            "name": "groupsNowArray",
+            "type": "blob",
+            "path": "ipps/groups-now-array.json",
+            "connection": "wrdsbflenderson_STORAGE",
+            "direction": "out"
+        },
+        {
+            "name": "groupsNowObject",
+            "type": "blob",
+            "path": "ipps/groups-now-object.json",
+            "connection": "wrdsbflenderson_STORAGE",
+            "direction": "out"
+        },
+        {
+            "name": "locationsNowArray",
+            "type": "blob",
+            "path": "ipps/locations-now-array.json",
+            "connection": "wrdsbflenderson_STORAGE",
+            "direction": "out"
+        },
+        {
+            "name": "locationsNowObject",
+            "type": "blob",
+            "path": "ipps/locations-now-object.json",
+            "connection": "wrdsbflenderson_STORAGE",
+            "direction": "out"
+        },
+        {
+            "name": "flynnGrid",
+            "type": "eventHub",
+            "eventHubName": "flynn-events",
+            "connection": "wrdsb-flynn_EVENTHUB",
+            "direction": "out"
+        },
+        {
+            "name": "res",
+            "type": "http",
+            "direction": "out"
+        }
+    ],
+    "disabled": false
 }
