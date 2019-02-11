@@ -15,9 +15,9 @@ module.exports = function (context, data) {
         // Create the directoryRecord object for the directory collections
         var directoryRecord = {
             id:             row.EMAIL_ADDRESS,
-            email_address:  row.EMAIL_ADDRESS,
+            email:          row.EMAIL_ADDRESS,
             first_name:     row.FIRST_NAME,
-            surname:        row.SURNAME,
+            last_name:      row.SURNAME,
             directory:      row.DIRECTORY,
             phone_no:       row.PHONE_NO,
             extension:      row.EXTENSION,
