@@ -15,11 +15,16 @@ module.exports = function (context, data) {
         // Create the directoryRecord object for the directory collections
         var directoryRecord = {
             id:             row.EMAIL_ADDRESS,
-            email:          row.EMAIL_ADDRESS,
+            email_address:  row.EMAIL_ADDRESS,
             first_name:     row.FIRST_NAME,
-            last_name:      row.SURNAME,
-            name:           `${row.FIRST_NAME} ${row.SURNAME}`,
-            sortable_name:  `${row.SURNAME}, ${row.FIRST_NAME}`,
+            surname:        row.SURNAME,
+            directory:      row.DIRECTORY,
+            phone_no:       row.PHONE_NO,
+            extension:      row.EXTENSION,
+            mbxnumber:      row.MBXNUMBER,
+            school_code:    row.SCHOOL_CODE,
+            full_name:      row.FULL_NAME,
+            job_desc:       row.JOB_DESC
         };
 
         // Grab what will become our object identifier
