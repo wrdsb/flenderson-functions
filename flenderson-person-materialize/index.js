@@ -25,6 +25,13 @@ module.exports = function (context, req) {
         positions:      personRecord.positions
     };
 
+    if (directoryRecord) {
+        (directoryRecord.directory) ? materializedPerson.directory = directoryRecord.directory : materializedPerson.directory = '';
+        (directoryRecord.phone_no) ? materializedPerson.phone = directoryRecord.phone_no : materializedPerson.phone = '';
+        (directoryRecord.extension) ? materializedPerson.extension = directoryRecord.extension : materializedPerson.extension = '';
+        (directoryRecord.mbxnumber) ? materializedPerson.mbxnumber = directoryRecord.mbxnumber : materializedPerson.mbxnumber = '';
+    }
+
     // Write out our matarialized person to Flenderson Cosmos DB
     context.bindings.materializedPerson = JSON.stringify(materializedPerson);
     
