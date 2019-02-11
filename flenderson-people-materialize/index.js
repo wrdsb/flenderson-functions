@@ -19,12 +19,13 @@ module.exports = function (context, req) {
             last_name:      personRecord.last_name,
             name:           `${personRecord.first_name} ${personRecord.last_name}`,
             sortable_name:  `${personRecord.last_name}, ${personRecord.first_name}`,
-            directory:      directoryRecord.directory,
-            phone:          directoryRecord.phone_no,
-            extension:      directoryRecord.extension,
-            mbxnumber:      directoryRecord.mbxnumber,
             positions:      personRecord.positions
         };
+
+        (directoryRecord.directory) ? materializedPerson.directory = directoryRecord.directory : materializedPerson.directory = '';
+        (directoryRecord.phone_no) ? materializedPerson.phone = directoryRecord.phone_no : materializedPerson.phone = '';
+        (directoryRecord.extension) ? materializedPerson.extension = directoryRecord.extension : materializedPerson.extension = '';
+        (directoryRecord.mbxnumber) ? materializedPerson.mbxnumber = directoryRecord.mbxnumber : materializedPerson.mbxnumber = '';
 
         materializedArray.push(materializedPerson);
         materializedObject[materializedPerson.id] = materializedPerson;
