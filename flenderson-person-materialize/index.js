@@ -32,7 +32,7 @@ module.exports = function (context, req) {
     var event = {
         eventID: `${event_type}-${context.executionContext.invocationId}`,
         eventType: event_type,
-        source: "/ipps/person/materialize",
+        source: "/flenderson/person/materialize",
         schemaURL: "ca.wrdsb.flenderson.person.materialize.json",
         extensions: {
             app: 'wrdsb-flenderson',
