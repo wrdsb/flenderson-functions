@@ -1,0 +1,49 @@
+{
+    "bindings": [
+        {
+            "name": "req",
+            "type": "httpTrigger",
+            "authLevel": "function",
+            "direction": "in",
+            "methods": [
+                "post"
+            ]
+        },
+        {
+            "name": "peopleNowObject",
+            "type": "blob",
+            "path": "ipps/people-now-object.json",
+            "connection": "wrdsbflenderson_STORAGE",
+            "direction": "in"
+        },
+        {
+            "name": "directoryNowObject",
+            "type": "blob",
+            "path": "ipps/directory-now-object.json",
+            "connection": "wrdsbflenderson_STORAGE",
+            "direction": "in"
+        },
+        {
+            "name": "materializedPerson",
+            "type": "cosmosDB",
+            "databaseName": "flenderson",
+            "collectionName": "flenderson-people",
+            "createIfNotExists": false,
+            "connectionStringSetting": "wrdsb-flenderson_COSMOSDB",
+            "direction": "out"
+        },
+        {
+            "name": "flynnGrid",
+            "type": "eventHub",
+            "eventHubName": "flynn-events",
+            "connection": "wrdsb-flynn_EVENTHUB",
+            "direction": "out"
+        },
+        {
+            "name": "res",
+            "type": "http",
+            "direction": "out"
+        }
+    ],
+    "disabled": false
+}
