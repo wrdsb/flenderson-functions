@@ -1,0 +1,34 @@
+{
+    "bindings": [
+        {
+            "name": "triggerMessage",
+            "type": "queueTrigger",
+            "direction": "in",
+            "queueName": "hris-people-differences-calculate",
+            "connection": "wrdsbflenderson_STORAGE"
+        },
+        {
+            "name": "recordsNow",
+            "type": "blob",
+            "path": "hris/people-now-object.json",
+            "connection": "wrdsbflenderson_STORAGE",
+            "direction": "in"
+        },
+        {
+            "name": "queuePersonPersist",
+            "type": "queue",
+            "queueName": "person-persist",
+            "connection": "wrdsbflenderson_STORAGE",
+            "direction": "out"
+        },
+        {
+            "name": "callbackMessage",
+            "type": "queue",
+            "direction": "out",
+            "queueName": "callbacks",
+            "connection": "wrdsbflenderson_STORAGE"
+        }
+    ],
+    "disabled": false,
+    "scriptFile": "../dist/collection-people-init/index.js"
+}
