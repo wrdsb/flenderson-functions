@@ -62,11 +62,12 @@ const personChangeProcess: AzureFunction = async function (context: Context, tri
         let event_type = 'Flenderson.Person.Create';
         let source = 'create';
         let schema = 'create';
+        let label = `${new_record.email}'s HRIS record created.`;
         let payload = {
             record: new_record
         };
 
-        let events = [craftEvent(new_record.id, source, schema, event_type, payload)];
+        let events = [craftEvent(new_record.id, source, schema, event_type, label, payload)];
         return events;
     }
     
@@ -75,12 +76,13 @@ const personChangeProcess: AzureFunction = async function (context: Context, tri
         let event_type = 'Flenderson.Person.Update';
         let source = 'update';
         let schema = 'update';
+        let label = `${new_record.email}'s HRIS record updated.`;
         let payload = {
             old_record: old_record,
             new_record: new_record,
         };
 
-        let events = [craftEvent(new_record.id, source, schema, event_type, payload)];
+        let events = [craftEvent(new_record.id, source, schema, event_type, label, payload)];
         return events;
     }
 
@@ -89,11 +91,12 @@ const personChangeProcess: AzureFunction = async function (context: Context, tri
         let event_type = 'Flenderson.Person.Delete';
         let source = 'delete';
         let schema = 'delete';
+        let label = `${old_record.email}'s HRIS record deleted.`;
         let payload = {
             record: old_record
         };
 
-        let events = [craftEvent(old_record.id, source, schema, event_type, payload)];
+        let events = [craftEvent(old_record.id, source, schema, event_type, label, payload)];
         return events;
     }
 
@@ -114,32 +117,35 @@ const personChangeProcess: AzureFunction = async function (context: Context, tri
                     let event_type = `Flenderson.Person.Field.Delete`;
                     let source = `${field}/delete`;
                     let schema = `${field}.delete`;
+                    let label = `${new_record.email}'s ${field} deleted (${old_value}).`;
                     let payload = {
                         record: new_record,
                         field: field,
                         old_value: old_value
                     };
 
-                    events.push(craftEvent(new_record.id, source, schema, event_type, payload));
+                    events.push(craftEvent(new_record.id, source, schema, event_type, label, payload));
 
                 // or if we gained a field
                 } else if (old_value === null && new_value !== null) {
                     let event_type = `Flenderson.Person.Field.Create`;
                     let source = `${field}/create`;
                     let schema = `ipps_person_${field}.create`;
+                    let label = `${new_record.email}'s ${field} created (${new_value}).`;
                     let payload = {
                         record: new_record,
                         field: field,
                         new_value: new_value
                     };
 
-                    events.push(craftEvent(new_record.id, source, schema, event_type, payload));
+                    events.push(craftEvent(new_record.id, source, schema, event_type, label, payload));
 
                 // or if field value changed
                 } else if (old_value !== new_value) {
                     let event_type = `Flenderson.Person.Field.Update`;
                     let source = `${field}/update`;
                     let schema = `${field}.update`;
+                    let label = `${new_record.email}'s ${field} updated from ${old_value} to ${new_value}.`;
                     let payload = {
                         record: new_record,
                         field: field,
@@ -147,7 +153,7 @@ const personChangeProcess: AzureFunction = async function (context: Context, tri
                         new_value: new_value
                     };
 
-                    events.push(craftEvent(new_record.id, source, schema, event_type, payload));
+                    events.push(craftEvent(new_record.id, source, schema, event_type, label, payload));
 
                 // else nothing changed
                 } else {
@@ -183,37 +189,40 @@ const personChangeProcess: AzureFunction = async function (context: Context, tri
                 let event_type = 'Flenderson.Person.Position.Create';
                 let source = `position/${position_id}/create`;
                 let schema = `position.create`;
+                let label = `${new_record.email}'s position ${position_id} created.`;
                 let payload = {
                     record: new_record,
                     position: new_position
                 };
 
-                events.push(craftEvent(new_record.id, source, schema, event_type, payload));
+                events.push(craftEvent(new_record.id, source, schema, event_type, label, payload));
 
             // if the position isn't present in new_positions, it got dropped
             } else if (!new_position) {
                 let event_type = 'Flenderson.Person.Position.Delete';
                 let source = `position/${position_id}/delete`;
                 let schema = `position.delete`;
+                let label = `${new_record.email}'s position ${position_id} deleted.`;
                 let payload = {
                     record: new_record,
                     position: old_position
                 };
 
-                events.push(craftEvent(new_record.id, source, schema, event_type, payload));
+                events.push(craftEvent(new_record.id, source, schema, event_type, label, payload));
 
             // else position is present in old and new, and we look for changes
             } else {
                 let event_type = 'Flenderson.Person.Position.Update';
                 let source = `position/${position_id}/update`;
                 let schema = `position.update`;
+                let label = `${new_record.email}'s position ${position_id} updated.`;
                 let payload = {
                     record: new_record,
                     new_position: new_position,
                     old_position: old_position
                 };
 
-                events.push(craftEvent(new_record.id, source, schema, event_type, payload));
+                events.push(craftEvent(new_record.id, source, schema, event_type, label, payload));
 
                 events = events.concat(comparePositionFields(new_record, old_position, new_position));
             }
@@ -235,6 +244,7 @@ const personChangeProcess: AzureFunction = async function (context: Context, tri
                 let event_type = `Flenderson.Person.Position.Field.Create`;
                 let source = `position/${new_position.position_id}/${field}/create`;
                 let schema = `position.${field}.create`;
+                let label = `${new_record.email}'s position ${new_position.position_id} ${field} created (${new_value}).`;
                 let payload = {
                     record: new_record,
                     position: new_position,
@@ -242,13 +252,14 @@ const personChangeProcess: AzureFunction = async function (context: Context, tri
                     new_value: new_value
                 };
 
-                events.push(craftEvent(new_record.id, source, schema, event_type, payload));
+                events.push(craftEvent(new_record.id, source, schema, event_type, label, payload));
 
             // if the field isn't present in the new position, it got dropped
             } else if (new_value === null && old_value !== null) {
                 let event_type = `Flenderson.Person.Position.Field.Delete`;
                 let source = `position/${old_position.position_id}/${field}/delete`;
                 let schema = `position.${field}.delete`;
+                let label = `${new_record.email}'s position ${old_position.position_id} ${field} deleted (was: ${old_value}).`;
                 let payload = {
                     record: new_record,
                     position: new_position,
@@ -256,13 +267,14 @@ const personChangeProcess: AzureFunction = async function (context: Context, tri
                     old_value: old_value
                 };
 
-                events.push(craftEvent(new_record.id, source, schema, event_type, payload));
+                events.push(craftEvent(new_record.id, source, schema, event_type, label, payload));
 
             // else the field is present in old and new positions, and we look for changes
             } else if (old_value !== new_value) {
                 let event_type = `Flenderson.Person.Position.Field.Update`;
                 let source = `position/${old_position.position_id}/${field}/update`;
                 let schema = `position.${field}.update`;
+                let label = `${new_record.email}'s position ${old_position.position_id} ${field} updated from ${old_value} to ${new_value}.`;
                 let payload = {
                     record: new_record,
                     position: new_position,
@@ -271,7 +283,7 @@ const personChangeProcess: AzureFunction = async function (context: Context, tri
                     new_value: new_value
                 };
 
-                events.push(craftEvent(new_record.id, source, schema, event_type, payload));
+                events.push(craftEvent(new_record.id, source, schema, event_type, label, payload));
 
             // else no change in field value
             } else {
@@ -281,7 +293,7 @@ const personChangeProcess: AzureFunction = async function (context: Context, tri
         return events;
     }
 
-    function craftEvent(recordID, source, schema, event_type, payload) {
+    function craftEvent(recordID, source, schema, event_type, label, payload) {
         let event = {
             id: `${event_type}-${context.executionContext.invocationId}`,
             time: invocationTimestamp,
@@ -290,7 +302,7 @@ const personChangeProcess: AzureFunction = async function (context: Context, tri
             source: `/flenderson/person/${recordID}/${source}`,
             schemaURL: `ca.wrdsb.flenderson.person.${schema}.json`,
 
-            label: `Flenderson changes HRIS Person`, 
+            label: label,
             tags: [
                 "flenderson", 
                 "hris_person_change",
@@ -309,8 +321,6 @@ const personChangeProcess: AzureFunction = async function (context: Context, tri
             specversion: "0.2",
             contentType: "application/json"
         };
-
-        context.log(event);
 
         // TODO: check message length
         return event;
