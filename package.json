@@ -1,0 +1,27 @@
+{
+    "name": "flenderson-functions",
+    "description": "",
+    "version": "1.0.0",
+    "author": "WRDSB",
+    "license": "MIT",
+    "scripts": {
+        "build": "tsc",
+        "watch": "tsc -w",
+        "prestart": "npm run build && func extensions install",
+        "start:host": "func start",
+        "start": "npm run start:host & npm run watch",
+        "build:production": "npm run prestart && npm prune --production",
+        "test": "echo \"No tests yet...\""
+    },
+    "dependencies": {
+        "@azure/cosmos": "^2.1.5",
+        "@azure/storage-blob": "^10.3.0",
+        "@types/lodash": "^4.14.123",
+        "@types/node": "^11.13.9",
+        "lodash": "^4.17.11"
+    },
+    "devDependencies": {
+        "@azure/functions": "^1.0.3",
+        "typescript": "^3.3.3"
+    }
+}
