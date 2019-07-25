@@ -8,9 +8,16 @@
             "connection": "wrdsbflenderson_STORAGE"
         },
         {
-            "name": "recordsNow",
+            "name": "peopleNow",
             "type": "blob",
             "path": "hris/people-now-object.json",
+            "connection": "wrdsbflenderson_STORAGE",
+            "direction": "in"
+        },
+        {
+            "name": "directoryNow",
+            "type": "blob",
+            "path": "hris/directory-now-object.json",
             "connection": "wrdsbflenderson_STORAGE",
             "direction": "in"
         },

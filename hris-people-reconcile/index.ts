@@ -21,7 +21,10 @@ const hrisPeopleReconcile: AzureFunction = async function (context: Context, tri
     const cosmosClient = new CosmosClient({endpoint: cosmosEndpoint, auth: {masterKey: cosmosKey}});
 
     // give our bindings more human-readable names
-    const records_now = context.bindings.recordsNow;
+    const people_now = context.bindings.peopleNow;
+    const directory_now = context.bindings.directoryNow;
+
+    let records_now = await materializePeople(people_now, directory_now);
 
     // fetch current records from Cosmos
     const records_previous = await getCosmosItems(cosmosClient, cosmosDatabase, cosmosContainer).catch(err => {
@@ -59,8 +62,44 @@ const hrisPeopleReconcile: AzureFunction = async function (context: Context, tri
 
     context.bindings.logObject = JSON.stringify(logObject);
     context.bindings.callbackMessage = JSON.stringify(callbackMessage);
-    context.log(JSON.stringify(differences));
     context.done(null, callbackMessage);
+
+    async function materializePeople(people, directory)
+    {
+        let materializedPeople = {};
+
+        Object.getOwnPropertyNames(people).forEach(function (person_id) {
+            let personRecord = people[person_id];
+            let directoryRecord = directory[personRecord.email];
+
+            let materializedPerson = {
+                id:             personRecord.id,
+                ein:            personRecord.ein,
+                email:          personRecord.email,
+                username:       personRecord.username,
+                first_name:     personRecord.first_name,
+                last_name:      personRecord.last_name,
+                name:           `${personRecord.first_name} ${personRecord.last_name}`,
+                sortable_name:  `${personRecord.last_name}, ${personRecord.first_name}`,
+                positions:      personRecord.positions,
+                directory:      null,
+                phone:          null,
+                extension:      null,
+                mbxnumber:      null
+            };
+    
+            if (directoryRecord) {
+                (directoryRecord.directory) ? materializedPerson.directory = directoryRecord.directory : materializedPerson.directory = '';
+                (directoryRecord.phone_no) ? materializedPerson.phone = directoryRecord.phone_no : materializedPerson.phone = '';
+                (directoryRecord.extension) ? materializedPerson.extension = directoryRecord.extension : materializedPerson.extension = '';
+                (directoryRecord.mbxnumber) ? materializedPerson.mbxnumber = directoryRecord.mbxnumber : materializedPerson.mbxnumber = '';
+            }
+    
+            materializedPeople[materializedPerson.id] = materializedPerson;
+        });
+        
+        return materializedPeople;
+    }
 
     async function findCreatesAndUpdates(calculation)
     {
@@ -92,6 +131,7 @@ const hrisPeopleReconcile: AzureFunction = async function (context: Context, tri
                 calculation.differences.created_records.push(new_record);
             }
         });
+
         return calculation;
     }
 
