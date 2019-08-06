@@ -67,6 +67,7 @@ const viewStaffDirProcess: AzureFunction = async function (context: Context, tri
     };
 
     context.bindings.callbackMessage = JSON.stringify(callbackMessage.data);
+    context.bindings.triggerHRISPeopleReconcile = JSON.stringify(callbackMessage.data);
 
     context.log(JSON.stringify(callbackMessage));
     context.done(null, callbackMessage);

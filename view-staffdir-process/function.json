@@ -41,6 +41,13 @@
             "direction": "out",
             "queueName": "callbacks",
             "connection": "wrdsbflenderson_STORAGE"
+        },
+        {
+            "name": "triggerHRISPeopleReconcile",
+            "type": "queue",
+            "direction": "out",
+            "queueName": "hris-people-reconcile",
+            "connection": "wrdsbflenderson_STORAGE"
         }
     ],
     "disabled": false,

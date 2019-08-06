@@ -145,6 +145,7 @@ const viewIAMWPProcess: AzureFunction = async function (context: Context, trigge
     };
 
     context.bindings.callbackMessage = JSON.stringify(callbackMessage.data);
+    context.bindings.triggerHRISPeopleReconcile = JSON.stringify(callbackMessage.data);
 
     context.log(JSON.stringify(callbackMessage));
     context.done(null, callbackMessage);
