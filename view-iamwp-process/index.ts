@@ -1,7 +1,27 @@
 import { AzureFunction, Context } from "@azure/functions"
+import { createLogObject } from "../SharedCode/createLogObject";
+import { createLogBlob } from "../SharedCode/createLogBlob";
+import { createCallbackMessage } from "../SharedCode/createCallbackMessage";
+import { createEvent } from "../SharedCode/createEvent";
 
 const viewIAMWPProcess: AzureFunction = async function (context: Context, triggerMessage: string): Promise<void> {
-    const execution_timestamp = (new Date()).toJSON();  // format: 2012-04-23T18:25:43.511Z
+    const functionInvocationID = context.executionContext.invocationId;
+    const functionInvocationTime = new Date();
+    const functionInvocationTimestamp = functionInvocationTime.toJSON();  // format: 2012-04-23T18:25:43.511Z
+
+    const functionName = context.executionContext.functionName;
+    const functionEventType = 'WRDSB.Flenderson.View.IAMWP.Process';
+    const functionEventID = `flenderson-functions-${functionName}-${functionInvocationID}`;
+    const functionLogID = `${functionInvocationTime.getTime()}-${functionInvocationID}`;
+
+    const logStorageAccount = process.env['storageAccount'];
+    const logStorageKey = process.env['storageKey'];
+    const logStorageContainer = 'function-view-iamwp-process-logs';
+
+    const eventLabel = '';
+    const eventTags = [
+        "flenderson", 
+    ];
 
     const panamaBlob = context.bindings.panamaBlob;
 
@@ -27,8 +47,8 @@ const viewIAMWPProcess: AzureFunction = async function (context: Context, trigge
             id:             row.EMPLOYEE_ID,
             ein:            row.EMPLOYEE_ID,
             username:       (row.USERNAME ? row.USERNAME.toLowerCase() : ''),
-            name:           row.FIRST_NAME,
-            sortable_name:  row.SURNAME,
+            name:           row.FIRST_NAME + ' ' + row.SURNAME,
+            sortable_name:  row.SURNAME + ', ' + row.FIRST_NAME,
             first_name:     row.FIRST_NAME,
             last_name:      row.SURNAME,
             email:          row.EMAIL_ADDRESS,
@@ -128,27 +148,26 @@ const viewIAMWPProcess: AzureFunction = async function (context: Context, trigge
     context.bindings.locationsNowArray = JSON.stringify(locationsArray);
     context.bindings.locationsNowObject = JSON.stringify(locationsObject);
 
-    let callbackMessage = {
-        id: 'flenderson-functions-' + context.executionContext.functionName +'-'+ context.executionContext.invocationId,
-        eventType: 'Flenderson.View.IAMWP.Process',
-        eventTime: execution_timestamp,
-        //subject: ,
-        data: {
-            event_type: 'function_invocation',
-            app: 'wrdsb-flenderson',
-            function_name: context.executionContext.functionName,
-            invocation_id: context.executionContext.invocationId,
-            data: {},
-            timestamp: execution_timestamp
-        },
-        dataVersion: '1'
+    const logPayload = {
+        people: peopleObject,
+        jobs: jobsObject,
+        groups: groupsObject,
+        locations: locationsObject
     };
+    const logObject = await createLogObject(functionInvocationID, functionInvocationTime, functionName, logPayload);
+    const logBlob = await createLogBlob(logStorageAccount, logStorageKey, logStorageContainer, logObject);
+    context.log(logBlob);
 
-    context.bindings.callbackMessage = JSON.stringify(callbackMessage.data);
-    context.bindings.triggerHRISPeopleReconcile = JSON.stringify(callbackMessage.data);
+    const callbackMessage = await createCallbackMessage(logObject, 200);
+    context.bindings.callbackMessage = JSON.stringify(callbackMessage);
+    context.log(callbackMessage);
 
-    context.log(JSON.stringify(callbackMessage));
-    context.done(null, callbackMessage);
+    const invocationEvent = await createEvent(functionInvocationID, functionInvocationTime, functionInvocationTimestamp, functionName, functionEventType, functionEventID, functionLogID, logStorageAccount, logStorageContainer, eventLabel, eventTags);
+    context.bindings.flynnEvent = JSON.stringify(invocationEvent);
+    context.log(invocationEvent);
+
+    context.bindings.triggerHRISPeopleReconcile = JSON.stringify(invocationEvent);
+    context.done(null, logBlob);
 };
 
 export default viewIAMWPProcess;

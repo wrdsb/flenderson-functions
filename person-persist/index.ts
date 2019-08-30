@@ -1,15 +1,27 @@
 import { AzureFunction, Context } from "@azure/functions"
+import { createLogObject } from "../SharedCode/createLogObject";
+import { createLogBlob } from "../SharedCode/createLogBlob";
+import { createCallbackMessage } from "../SharedCode/createCallbackMessage";
+import { createEvent } from "../SharedCode/createEvent";
 
 const personPersist: AzureFunction = async function (context: Context, triggerMessage: any): Promise<void> {
-    const invocationID = context.executionContext.invocationId;
-    const invocationTime = new Date();
-    const invocationTimestamp = invocationTime.toJSON();  // format: 2012-04-23T18:25:43.511Z
+    const functionInvocationID = context.executionContext.invocationId;
+    const functionInvocationTime = new Date();
+    const functionInvocationTimestamp = functionInvocationTime.toJSON();  // format: 2012-04-23T18:25:43.511Z
 
-    const appName = 'wrdsb-flenderson';
     const functionName = context.executionContext.functionName;
+    const functionEventType = 'WRDSB.Flenderson.HRIS.Person.Persist';
+    const functionEventID = `flenderson-functions-${functionName}-${functionInvocationID}`;
+    const functionLogID = `${functionInvocationTime.getTime()}-${functionInvocationID}`;
 
-    const eventID = `flenderson-functions-${functionName}-${invocationID}`;
-    const logID = `${invocationTime.getTime()}-${invocationID}`;
+    const logStorageAccount = process.env['storageAccount'];
+    const logStorageKey = process.env['storageKey'];
+    const logStorageContainer = 'function-person-persist-logs';
+
+    const eventLabel = '';
+    const eventTags = [
+        "flenderson", 
+    ];
 
     const triggerObject = triggerMessage;
 
@@ -37,15 +49,26 @@ const personPersist: AzureFunction = async function (context: Context, triggerMe
             break;
     }
 
-    let logObject = await createLogObject(logID, invocationTimestamp, oldRecord, newRecord);
-    let callbackMessage = await createCallback(eventID, eventType, invocationTimestamp, logID);
-    let event = await createEvent(eventID, eventType, invocationTimestamp, appName, functionName, invocationID, logID);
-
     context.bindings.recordOut = newRecord;
-    context.bindings.logObject = JSON.stringify(logObject);
+
+    const logPayload = {
+        operation: operation,
+        old_record: oldRecord,
+        new_record: newRecord
+    };
+    const logObject = await createLogObject(functionInvocationID, functionInvocationTime, functionName, logPayload);
+    const logBlob = await createLogBlob(logStorageAccount, logStorageKey, logStorageContainer, logObject);
+    context.log(logBlob);
+
+    const callbackMessage = await createCallbackMessage(logObject, 200);
     context.bindings.callbackMessage = JSON.stringify(callbackMessage);
-    context.log(JSON.stringify(callbackMessage));
-    context.done(null, callbackMessage);
+    context.log(callbackMessage);
+
+    const invocationEvent = await createEvent(functionInvocationID, functionInvocationTime, functionInvocationTimestamp, functionName, functionEventType, functionEventID, functionLogID, logStorageAccount, logStorageContainer, eventLabel, eventTags);
+    context.bindings.flynnEvent = JSON.stringify(invocationEvent);
+    context.log(invocationEvent);
+
+    context.done(null, logBlob);
 
     function doDelete(oldRecord, payload)
     {
@@ -59,14 +82,14 @@ const personPersist: AzureFunction = async function (context: Context, triggerMe
         // check for existing record
         if (!oldRecord) {
             newRecord = Object.assign(newRecord, payload);
-            newRecord.created_at = invocationTimestamp;
-            newRecord.updated_at = invocationTimestamp;
+            newRecord.created_at = functionInvocationTimestamp;
+            newRecord.updated_at = functionInvocationTimestamp;
         } else {
             newRecord = Object.assign(newRecord, oldRecord);
         }
 
         // mark the record as deleted
-        newRecord.deleted_at = invocationTimestamp;
+        newRecord.deleted_at = functionInvocationTimestamp;
         newRecord.deleted = true;
 
         return newRecord;
@@ -83,13 +106,13 @@ const personPersist: AzureFunction = async function (context: Context, triggerMe
 
         if (!oldRecord) {
             newRecord = Object.assign(newRecord, payload);
-            newRecord.created_at = invocationTimestamp;
+            newRecord.created_at = functionInvocationTimestamp;
         } else {
             // Merge request object into current record
             newRecord = Object.assign(newRecord, oldRecord, payload);
         }
         
-        newRecord.updated_at = invocationTimestamp;
+        newRecord.updated_at = functionInvocationTimestamp;
     
         // patching a record implicitly undeletes it
         newRecord.deleted_at = '';
@@ -110,64 +133,18 @@ const personPersist: AzureFunction = async function (context: Context, triggerMe
         newRecord = Object.assign(newRecord, payload);
 
         if (!oldRecord) {
-            newRecord.created_at = invocationTimestamp;
+            newRecord.created_at = functionInvocationTimestamp;
         } else {
             newRecord.created_at = oldRecord.created_at;
         }
 
-        newRecord.updated_at = invocationTimestamp;
+        newRecord.updated_at = functionInvocationTimestamp;
 
         // replacing a record implicitly undeletes it
         newRecord.deleted_at = '';
         newRecord.deleted = false;
     
         return newRecord;
-    }
-    
-    function createLogObject(logID, invocationTimestamp, oldRecord, newRecord)
-    {
-        let logObject = {
-            id: logID,
-            timestamp: invocationTimestamp,
-            oldRecord: oldRecord,
-            newRecord: newRecord
-        };
-
-        return logObject;
-    }
-
-    function createCallback(eventID, eventType, invocationTimestamp, logID)
-    {
-        let callbackMessage = {
-            id: eventID,
-            event_type: eventType,
-            event_time: invocationTimestamp,
-            object: logID
-        };
-
-        return callbackMessage;
-    }
-
-    function createEvent(eventID, eventType, invocationTimestamp, appName, functionName, invocationID, logID)
-    {
-        let event = {
-            id: eventID,
-            eventType: eventType,
-            eventTime: invocationTimestamp,
-            data: {
-                event_type: 'function_invocation',
-                app: appName,
-                function_name: functionName,
-                invocation_id: invocationID,
-                data: {
-                    object: logID
-                },
-                timestamp: invocationTimestamp
-            },
-            dataVersion: '1'
-        };
-
-        return event;
     }
 };
 

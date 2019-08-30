@@ -2,22 +2,34 @@ import { AzureFunction, Context } from "@azure/functions"
 import { CosmosClient } from "@azure/cosmos";
 import { isEqual } from "lodash";
 import { create } from "domain";
+import { createLogObject } from "../SharedCode/createLogObject";
+import { createLogBlob } from "../SharedCode/createLogBlob";
+import { createCallbackMessage } from "../SharedCode/createCallbackMessage";
+import { createEvent } from "../SharedCode/createEvent";
 
 const hrisPeopleReconcile: AzureFunction = async function (context: Context, triggerMessage: string): Promise<void> {
-    const invocationID = context.executionContext.invocationId;
-    const functionName = context.executionContext.functionName;
-    const invocationTime = new Date();
-    const invocationTimestamp = invocationTime.toJSON();  // format: 2012-04-23T18:25:43.511Z
+    const functionInvocationID = context.executionContext.invocationId;
+    const functionInvocationTime = new Date();
+    const functionInvocationTimestamp = functionInvocationTime.toJSON();  // format: 2012-04-23T18:25:43.511Z
 
-    const eventType = 'Flenderson.HRIS.People.Reconcile';
-    const eventID = `flenderson-functions-${functionName}-${invocationID}`;
-    const logID = `${invocationTime.getTime()}-${invocationID}`;
+    const functionName = context.executionContext.functionName;
+    const functionEventType = 'WRDSB.Flenderson.HRIS.People.Reconcile';
+    const functionEventID = `flenderson-functions-${functionName}-${functionInvocationID}`;
+    const functionLogID = `${functionInvocationTime.getTime()}-${functionInvocationID}`;
+
+    const logStorageAccount = process.env['storageAccount'];
+    const logStorageKey = process.env['storageKey'];
+    const logStorageContainer = 'function-hris-people-reconcile-logs';
+
+    const eventLabel = '';
+    const eventTags = [
+        "flenderson", 
+    ];
 
     const cosmosEndpoint = process.env['cosmosEndpoint'];
     const cosmosKey = process.env['cosmosKey'];
     const cosmosDatabase = process.env['cosmosDatabase'];
     const cosmosContainer = 'people';
-
     const cosmosClient = new CosmosClient({endpoint: cosmosEndpoint, auth: {masterKey: cosmosKey}});
 
     // give our bindings more human-readable names
@@ -51,18 +63,26 @@ const hrisPeopleReconcile: AzureFunction = async function (context: Context, tri
 
     let differences = await processDifferences(calculation.differences);
     let totalDifferences = await calculateTotalDifferences(calculation);
-    let logObject = await createLogObject(logID, invocationTimestamp, totalDifferences, calculation);
-
-    let callbackMessage = await createCallback(eventID, eventType, invocationTimestamp, logID, totalDifferences);
 
     if (totalDifferences > 0) {
         context.bindings.queuePersonPersist = creates.concat(updates, deletes);
         context.bindings.queuePersonChangeProcess = differences;
     }
 
-    context.bindings.logObject = JSON.stringify(logObject);
+    const logPayload = calculation;
+    const logObject = await createLogObject(functionInvocationID, functionInvocationTime, functionName, logPayload);
+    const logBlob = await createLogBlob(logStorageAccount, logStorageKey, logStorageContainer, logObject);
+    context.log(logBlob);
+
+    const callbackMessage = await createCallbackMessage(logObject, 200);
     context.bindings.callbackMessage = JSON.stringify(callbackMessage);
-    context.done(null, callbackMessage);
+    context.log(callbackMessage);
+
+    const invocationEvent = await createEvent(functionInvocationID, functionInvocationTime, functionInvocationTimestamp, functionName, functionEventType, functionEventID, functionLogID, logStorageAccount, logStorageContainer, eventLabel, eventTags);
+    context.bindings.flynnEvent = JSON.stringify(invocationEvent);
+    context.log(invocationEvent);
+
+    context.done(null, logBlob);
 
     async function materializePeople(people, directory)
     {
@@ -251,60 +271,6 @@ const hrisPeopleReconcile: AzureFunction = async function (context: Context, tri
         let totalDifferences = creates + updates + deletes;
 
         return totalDifferences;
-    }
-
-    async function createLogObject(logID, invocationTimestamp, totalDifferences, calculation)
-    {
-        let logObject = {
-            id: logID,
-            timestamp: invocationTimestamp,
-            total_differences: totalDifferences,
-            differences: {
-                created_records: calculation.differences.created_records,
-                updated_records: calculation.differences.updated_records,
-                deleted_records: calculation.differences.deleted_records
-            }
-        };
-
-        return logObject;
-    }
-
-    async function createCallback(eventID, eventType, invocationTimestamp, logID, totalDifferences)
-    {
-        let callbackMessage = {
-            id: eventID,
-            event_type: eventType,
-            event_time: invocationTimestamp,
-            object: logID,
-            total_differences: totalDifferences,
-        };
-
-        return callbackMessage;
-    }
-
-    async function createEvent(logID, totalDifferences)
-    {
-        context.log('createEvent');
-
-        let event = {
-            id: 'flenderson-functions-' + context.executionContext.functionName +'-'+ context.executionContext.invocationId,
-            eventType: 'Flenderson.HRIS.People.Differences.Calculate',
-            eventTime: invocationTimestamp,
-            data: {
-                event_type: 'function_invocation',
-                app: 'wrdsb-flenderson',
-                function_name: context.executionContext.functionName,
-                invocation_id: context.executionContext.invocationId,
-                data: {
-                    total_differences: totalDifferences,
-                    object: logID
-                },
-                timestamp: invocationTimestamp
-            },
-            dataVersion: '1'
-        };
-
-        return event;
     }
 
     async function getCosmosItems(cosmosClient, cosmosDatabase, cosmosContainer)

@@ -1,0 +1,20 @@
+{
+    "bindings": [
+        {
+            "name": "triggerMessage",
+            "type": "queueTrigger",
+            "queueName": "event-emitter",
+            "connection": "wrdsbflenderson_STORAGE",
+            "direction": "in"
+        },
+        {
+            "name": "eventBlob",
+            "type": "blob",
+            "path": "events/{queueTrigger.id}",
+            "connection": "wrdsbflenderson_STORAGE",
+            "direction": "out"
+        }
+    ],
+    "disabled": true,
+    "scriptFile": "../dist/event-emitter/index.js"
+}

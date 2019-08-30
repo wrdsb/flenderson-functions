@@ -1,14 +1,27 @@
 import { AzureFunction, Context } from "@azure/functions"
+import { createLogObject } from "../SharedCode/createLogObject";
+import { createLogBlob } from "../SharedCode/createLogBlob";
+import { createCallbackMessage } from "../SharedCode/createCallbackMessage";
+import { createEvent } from "../SharedCode/createEvent";
 
 const personChangeProcess: AzureFunction = async function (context: Context, triggerMessage: any): Promise<void> {
-    const invocationID = context.executionContext.invocationId;
-    const invocationTime = new Date();
-    const invocationTimestamp = invocationTime.toJSON();  // format: 2012-04-23T18:25:43.511Z
+    const functionInvocationID = context.executionContext.invocationId;
+    const functionInvocationTime = new Date();
+    const functionInvocationTimestamp = functionInvocationTime.toJSON();  // format: 2012-04-23T18:25:43.511Z
 
     const functionName = context.executionContext.functionName;
-    const functionEventType = 'Flenderson.Person.Change.Process';
-    const functionEventID = `flenderson-functions-${functionName}-${invocationID}`;
-    const functionLogID = `${invocationTime.getTime()}-${invocationID}`;
+    const functionEventType = 'WRDSB.Flenderson.Person.Change.Process';
+    const functionEventID = `flenderson-functions-${functionName}-${functionInvocationID}`;
+    const functionLogID = `${functionInvocationTime.getTime()}-${functionInvocationID}`;
+
+    const logStorageAccount = process.env['storageAccount'];
+    const logStorageKey = process.env['storageKey'];
+    const logStorageContainer = 'function-person-change-process-logs';
+
+    const eventLabel = '';
+    const eventTags = [
+        "flenderson", 
+    ];
 
     const triggerObject = triggerMessage;
 
@@ -52,10 +65,20 @@ const personChangeProcess: AzureFunction = async function (context: Context, tri
             break;
     }
 
-    let logObject = createLogObject(functionLogID, invocationTimestamp, events);
+    const logPayload = events;
+    const logObject = await createLogObject(functionInvocationID, functionInvocationTime, functionName, logPayload);
+    const logBlob = await createLogBlob(logStorageAccount, logStorageKey, logStorageContainer, logObject);
+    context.log(logBlob);
+    
+    const callbackMessage = await createCallbackMessage(logObject, 200);
+    context.bindings.callbackMessage = JSON.stringify(callbackMessage);
+    context.log(callbackMessage);
 
-    context.bindings.logObject = logObject;
-    context.done(null, events);
+    const invocationEvent = await createEvent(functionInvocationID, functionInvocationTime, functionInvocationTimestamp, functionName, functionEventType, functionEventID, functionLogID, logStorageAccount, logStorageContainer, eventLabel, eventTags);
+    context.bindings.flynnEvent = JSON.stringify(invocationEvent);
+    context.log(invocationEvent);
+
+    context.done(null, logBlob);
 
     function craftPersonCreateEvent(old_record, new_record)
     {
@@ -296,7 +319,7 @@ const personChangeProcess: AzureFunction = async function (context: Context, tri
     function craftEvent(recordID, source, schema, event_type, label, payload) {
         let event = {
             id: `${event_type}-${context.executionContext.invocationId}`,
-            time: invocationTimestamp,
+            time: functionInvocationTimestamp,
 
             type: event_type,
             source: `/flenderson/person/${recordID}/${source}`,
@@ -325,17 +348,7 @@ const personChangeProcess: AzureFunction = async function (context: Context, tri
         // TODO: check message length
         return event;
     }
-
-    function createLogObject(logID, invocationTimestamp, events)
-    {
-        let logObject = {
-            id: logID,
-            timestamp: invocationTimestamp,
-            events: events
-        };
-
-        return logObject;
-    }
+       
 };
 
 export default personChangeProcess;
