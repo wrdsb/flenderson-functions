@@ -97,6 +97,27 @@
             "direction": "out",
             "queueName": "hris-people-reconcile",
             "connection": "wrdsbflenderson_STORAGE"
+        },
+        {
+            "name": "triggerHRISJobsReconcile",
+            "type": "queue",
+            "direction": "out",
+            "queueName": "hris-jobs-reconcile",
+            "connection": "wrdsbflenderson_STORAGE"
+        },
+        {
+            "name": "triggerHRISGroupsReconcile",
+            "type": "queue",
+            "direction": "out",
+            "queueName": "hris-groups-reconcile",
+            "connection": "wrdsbflenderson_STORAGE"
+        },
+        {
+            "name": "triggerHRISLocationsReconcile",
+            "type": "queue",
+            "direction": "out",
+            "queueName": "hris-locations-reconcile",
+            "connection": "wrdsbflenderson_STORAGE"
         }
     ],
     "disabled": false,

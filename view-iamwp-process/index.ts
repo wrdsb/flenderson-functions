@@ -96,15 +96,18 @@ const viewIAMWPProcess: AzureFunction = async function (context: Context, trigge
 
         // Add/overwrite jobs, groups, and locations from this row to their collection objects
         jobsObject[personPosition.job_code] = {
+            id: personPosition.job_code,
             job_code: personPosition.job_code,
             job_description: personPosition.job_description,
         };
         groupsObject[personPosition.employee_group_code] = {
-            employee_group_category: personPosition.employee_group_category,
+            id: personPosition.employee_group_code,
             employee_group_code: personPosition.employee_group_code,
+            employee_group_category: personPosition.employee_group_category,
             employee_group_description: personPosition.employee_group_description,
         };
         locationsObject[personPosition.location_code] = {
+            id: personPosition.location_code,
             location_code: personPosition.location_code,
             location_description: personPosition.location_description,
         };
@@ -167,6 +170,9 @@ const viewIAMWPProcess: AzureFunction = async function (context: Context, trigge
     context.log(invocationEvent);
 
     context.bindings.triggerHRISPeopleReconcile = JSON.stringify(invocationEvent);
+    context.bindings.triggerHRISJobsReconcile = JSON.stringify(invocationEvent);
+    context.bindings.triggerHRISGroupsReconcile = JSON.stringify(invocationEvent);
+    context.bindings.triggerHRISLocationsReconcile = JSON.stringify(invocationEvent);
     context.done(null, logBlob);
 };
 
