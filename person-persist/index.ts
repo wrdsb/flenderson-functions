@@ -1,4 +1,4 @@
-import { AzureFunction, Context } from "@azure/functions"
+import { AzureFunction, Context } from "@azure/functions";
 import { createLogObject } from "../SharedCode/createLogObject";
 import { createLogBlob } from "../SharedCode/createLogBlob";
 import { createCallbackMessage } from "../SharedCode/createCallbackMessage";
