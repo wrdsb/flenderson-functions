@@ -4,27 +4,20 @@
             "name": "triggerMessage",
             "type": "queueTrigger",
             "direction": "in",
-            "queueName": "hris-people-reconcile",
+            "queueName": "hris-groups-reconcile",
             "connection": "wrdsbflenderson_STORAGE"
         },
         {
-            "name": "peopleNow",
+            "name": "groupsNow",
             "type": "blob",
-            "path": "hris/people-now-object.json",
+            "path": "hris/groups-now-object.json",
             "connection": "wrdsbflenderson_STORAGE",
             "direction": "in"
         },
         {
-            "name": "directoryNow",
-            "type": "blob",
-            "path": "hris/directory-now-object.json",
-            "connection": "wrdsbflenderson_STORAGE",
-            "direction": "in"
-        },
-        {
-            "name": "queuePersonStore",
+            "name": "queueGroupStore",
             "type": "queue",
-            "queueName": "person-store",
+            "queueName": "group-store",
             "connection": "wrdsbflenderson_STORAGE",
             "direction": "out"
         },
@@ -44,5 +37,5 @@
         }
     ],
     "disabled": false,
-    "scriptFile": "../dist/hris-people-reconcile/index.js"
+    "scriptFile": "../dist/hris-groups-reconcile/index.js"
 }

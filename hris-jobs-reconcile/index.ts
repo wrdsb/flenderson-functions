@@ -7,19 +7,19 @@ import { createLogBlob } from "../SharedCode/createLogBlob";
 import { createCallbackMessage } from "../SharedCode/createCallbackMessage";
 import { createEvent } from "../SharedCode/createEvent";
 
-const hrisPeopleReconcile: AzureFunction = async function (context: Context, triggerMessage: string): Promise<void> {
+const hrisJobsReconcile: AzureFunction = async function (context: Context, triggerMessage: string): Promise<void> {
     const functionInvocationID = context.executionContext.invocationId;
     const functionInvocationTime = new Date();
     const functionInvocationTimestamp = functionInvocationTime.toJSON();  // format: 2012-04-23T18:25:43.511Z
 
     const functionName = context.executionContext.functionName;
-    const functionEventType = 'WRDSB.Flenderson.HRIS.People.Reconcile';
+    const functionEventType = 'WRDSB.Flenderson.HRIS.Jobs.Reconcile';
     const functionEventID = `flenderson-functions-${functionName}-${functionInvocationID}`;
     const functionLogID = `${functionInvocationTime.getTime()}-${functionInvocationID}`;
 
     const logStorageAccount = process.env['storageAccount'];
     const logStorageKey = process.env['storageKey'];
-    const logStorageContainer = 'function-hris-people-reconcile-logs';
+    const logStorageContainer = 'function-hris-jobs-reconcile-logs';
 
     const eventLabel = '';
     const eventTags = [
@@ -29,19 +29,18 @@ const hrisPeopleReconcile: AzureFunction = async function (context: Context, tri
     const cosmosEndpoint = process.env['cosmosEndpoint'];
     const cosmosKey = process.env['cosmosKey'];
     const cosmosDatabase = process.env['cosmosDatabase'];
-    const cosmosContainer = 'people';
+    const cosmosContainer = 'jobs';
     const cosmosClient = new CosmosClient({endpoint: cosmosEndpoint, auth: {masterKey: cosmosKey}});
 
     // give our bindings more human-readable names
-    const people_now = context.bindings.peopleNow;
-    const directory_now = context.bindings.directoryNow;
-
-    let records_now = await materializePeople(people_now, directory_now);
+    const jobs_now = context.bindings.jobsNow;
 
     // fetch current records from Cosmos
     const records_previous = await getCosmosItems(cosmosClient, cosmosDatabase, cosmosContainer).catch(err => {
         context.log(err);
     });
+
+    let records_now = jobs_now;
 
     // object to store our total diff as we build it
     let calculation = {
@@ -65,7 +64,7 @@ const hrisPeopleReconcile: AzureFunction = async function (context: Context, tri
     let totalDifferences = await calculateTotalDifferences(calculation);
 
     if (totalDifferences > 0) {
-        context.bindings.queuePersonStore = creates.concat(updates, deletes);
+        context.bindings.queueJobStore = creates.concat(updates, deletes);
     }
 
     const logPayload = calculation;
@@ -82,43 +81,6 @@ const hrisPeopleReconcile: AzureFunction = async function (context: Context, tri
     context.log(invocationEvent);
 
     context.done(null, logBlob);
-
-    async function materializePeople(people, directory)
-    {
-        let materializedPeople = {};
-
-        Object.getOwnPropertyNames(people).forEach(function (person_id) {
-            let personRecord = people[person_id];
-            let directoryRecord = directory[personRecord.email];
-
-            let materializedPerson = {
-                id:             personRecord.id,
-                ein:            personRecord.ein,
-                email:          personRecord.email,
-                username:       personRecord.username,
-                first_name:     personRecord.first_name,
-                last_name:      personRecord.last_name,
-                name:           `${personRecord.first_name} ${personRecord.last_name}`,
-                sortable_name:  `${personRecord.last_name}, ${personRecord.first_name}`,
-                positions:      personRecord.positions,
-                directory:      null,
-                phone:          null,
-                extension:      null,
-                mbxnumber:      null
-            };
-    
-            if (directoryRecord) {
-                (directoryRecord.directory) ? materializedPerson.directory = directoryRecord.directory : materializedPerson.directory = '';
-                (directoryRecord.phone_no) ? materializedPerson.phone = directoryRecord.phone_no : materializedPerson.phone = '';
-                (directoryRecord.extension) ? materializedPerson.extension = directoryRecord.extension : materializedPerson.extension = '';
-                (directoryRecord.mbxnumber) ? materializedPerson.mbxnumber = directoryRecord.mbxnumber : materializedPerson.mbxnumber = '';
-            }
-    
-            materializedPeople[materializedPerson.id] = materializedPerson;
-        });
-        
-        return materializedPeople;
-    }
 
     async function findCreatesAndUpdates(calculation)
     {
@@ -326,4 +288,4 @@ const hrisPeopleReconcile: AzureFunction = async function (context: Context, tri
     }
 };
 
-export default hrisPeopleReconcile;
+export default hrisJobsReconcile;
