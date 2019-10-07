@@ -34,6 +34,11 @@ const hrisGroupsReconcile: AzureFunction = async function (context: Context, tri
 
     // give our bindings more human-readable names
     const groups_now = context.bindings.groupsNow;
+    let totalGroups = Object.getOwnPropertyNames(groups_now).length;
+
+    if (totalGroups < 50) {
+        context.done('Too few records. Aborting.');
+    }
 
     // fetch current records from Cosmos
     const records_previous = await getCosmosItems(cosmosClient, cosmosDatabase, cosmosContainer).catch(err => {

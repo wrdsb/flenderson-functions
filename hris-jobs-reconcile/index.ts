@@ -34,6 +34,11 @@ const hrisJobsReconcile: AzureFunction = async function (context: Context, trigg
 
     // give our bindings more human-readable names
     const jobs_now = context.bindings.jobsNow;
+    let totalJobs = Object.getOwnPropertyNames(jobs_now).length;
+
+    if (totalJobs < 50) {
+        context.done('Too few records. Aborting.');
+    }
 
     // fetch current records from Cosmos
     const records_previous = await getCosmosItems(cosmosClient, cosmosDatabase, cosmosContainer).catch(err => {

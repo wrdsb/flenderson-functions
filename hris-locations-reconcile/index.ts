@@ -34,6 +34,11 @@ const hrisLocationsReconcile: AzureFunction = async function (context: Context, 
 
     // give our bindings more human-readable names
     const locations_now = context.bindings.locationsNow;
+    let totalLocations = Object.getOwnPropertyNames(locations_now).length;
+
+    if (totalLocations < 50) {
+        context.done('Too few records. Aborting.');
+    }
 
     // fetch current records from Cosmos
     const records_previous = await getCosmosItems(cosmosClient, cosmosDatabase, cosmosContainer).catch(err => {

@@ -35,6 +35,11 @@ const hrisPeopleReconcile: AzureFunction = async function (context: Context, tri
     // give our bindings more human-readable names
     const people_now = context.bindings.peopleNow;
     const directory_now = context.bindings.directoryNow;
+    let totalPeople = Object.getOwnPropertyNames(people_now).length;
+
+    if (totalPeople < 5000) {
+        context.done('Too few records. Aborting.');
+    }
 
     let records_now = await materializePeople(people_now, directory_now);
 
