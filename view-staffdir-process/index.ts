@@ -68,34 +68,34 @@ const viewStaffDirProcess: AzureFunction = async function (context: Context, tri
         directoryArray.push(directoryObject[email]);
     });
 
-    if (rowsProcessed > 5000 && peopleProcessed > 5000) {
-        // Write out Flenderson's local copy of Panama's raw data
-        context.bindings.viewRaw = JSON.stringify(panamaBlob);
-
-        // Write out arrays and objects to blobs
-        context.bindings.directoryNowArray = JSON.stringify(directoryArray);
-        context.bindings.directoryNowObject = JSON.stringify(directoryObject);
-
-        const logPayload = {
-            directory: JSON.stringify(directoryObject)
-        };
-        const logObject = await createLogObject(functionInvocationID, functionInvocationTime, functionName, logPayload);
-        const logBlob = await createLogBlob(logStorageAccount, logStorageKey, logStorageContainer, logObject);
-        context.log(logBlob);
-
-        const callbackMessage = await createCallbackMessage(logObject, 200);
-        context.bindings.callbackMessage = JSON.stringify(callbackMessage);
-        context.log(callbackMessage);
-
-        const invocationEvent = await createEvent(functionInvocationID, functionInvocationTime, functionInvocationTimestamp, functionName, functionEventType, functionEventID, functionLogID, logStorageAccount, logStorageContainer, eventLabel, eventTags);
-        context.bindings.flynnEvent = JSON.stringify(invocationEvent);
-        context.log(invocationEvent);
-            
-        context.bindings.triggerHRISPeopleReconcile = JSON.stringify(invocationEvent);
-        context.done(null, logBlob);
-    } else {
+    if (rowsProcessed < 5000 || peopleProcessed < 5000) {
         context.done('Too few records. Aborting.');
     }
+
+    // Write out Flenderson's local copy of Panama's raw data
+    context.bindings.viewRaw = JSON.stringify(panamaBlob);
+
+    // Write out arrays and objects to blobs
+    context.bindings.directoryNowArray = JSON.stringify(directoryArray);
+    context.bindings.directoryNowObject = JSON.stringify(directoryObject);
+
+    const logPayload = {
+        directory: JSON.stringify(directoryObject)
+    };
+    const logObject = await createLogObject(functionInvocationID, functionInvocationTime, functionName, logPayload);
+    const logBlob = await createLogBlob(logStorageAccount, logStorageKey, logStorageContainer, logObject);
+    context.log(logBlob);
+
+    const callbackMessage = await createCallbackMessage(logObject, 200);
+    context.bindings.callbackMessage = JSON.stringify(callbackMessage);
+    context.log(callbackMessage);
+
+    const invocationEvent = await createEvent(functionInvocationID, functionInvocationTime, functionInvocationTimestamp, functionName, functionEventType, functionEventID, functionLogID, logStorageAccount, logStorageContainer, eventLabel, eventTags);
+    context.bindings.flynnEvent = JSON.stringify(invocationEvent);
+    context.log(invocationEvent);
+        
+    context.bindings.triggerHRISPeopleReconcile = JSON.stringify(invocationEvent);
+    context.done(null, logBlob);
 };
 
 export default viewStaffDirProcess;
