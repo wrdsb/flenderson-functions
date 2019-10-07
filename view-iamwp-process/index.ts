@@ -26,6 +26,8 @@ const viewIAMWPProcess: AzureFunction = async function (context: Context, trigge
     const panamaBlob = context.bindings.panamaBlob;
 
     const rows = panamaBlob;
+    let rowsProcessed = 0;
+    let peopleProcessed = 0;
 
     let peopleObject = {};
     let peopleArray = [];
@@ -41,6 +43,8 @@ const viewIAMWPProcess: AzureFunction = async function (context: Context, trigge
         if (!row.EMPLOYEE_ID || !row.POSITION_ID) {
             return;
         }
+
+        rowsProcessed++;
 
         // Create the main part of a Person object
         let personRecord = {
@@ -115,6 +119,7 @@ const viewIAMWPProcess: AzureFunction = async function (context: Context, trigge
 
     // Add each person from peopleObject to peopleArray
     Object.getOwnPropertyNames(peopleObject).forEach(function (ein) {
+        peopleProcessed++;
         var person = peopleObject[ein];
         var positions_array = [];
         Object.getOwnPropertyNames(person.positions).forEach(function (position) {
@@ -135,45 +140,49 @@ const viewIAMWPProcess: AzureFunction = async function (context: Context, trigge
         locationsArray.push(locationsObject[location]);
     });
 
-    // Write out Flenderson's local copy of Panama's raw data
-    context.bindings.viewRaw = JSON.stringify(panamaBlob);
+    if (rowsProcessed > 5000 && peopleProcessed > 5000) {
+        // Write out Flenderson's local copy of Panama's raw data
+        context.bindings.viewRaw = JSON.stringify(panamaBlob);
 
-    // Write out arrays and objects to blobs
-    context.bindings.peopleNowArray = JSON.stringify(peopleArray);
-    context.bindings.peopleNowObject = JSON.stringify(peopleObject);
+        // Write out arrays and objects to blobs
+        context.bindings.peopleNowArray = JSON.stringify(peopleArray);
+        context.bindings.peopleNowObject = JSON.stringify(peopleObject);
 
-    context.bindings.jobsNowArray = JSON.stringify(jobsArray);
-    context.bindings.jobsNowObject = JSON.stringify(jobsObject);
+        context.bindings.jobsNowArray = JSON.stringify(jobsArray);
+        context.bindings.jobsNowObject = JSON.stringify(jobsObject);
 
-    context.bindings.groupsNowArray = JSON.stringify(groupsArray);
-    context.bindings.groupsNowObject = JSON.stringify(groupsObject);
+        context.bindings.groupsNowArray = JSON.stringify(groupsArray);
+        context.bindings.groupsNowObject = JSON.stringify(groupsObject);
 
-    context.bindings.locationsNowArray = JSON.stringify(locationsArray);
-    context.bindings.locationsNowObject = JSON.stringify(locationsObject);
+        context.bindings.locationsNowArray = JSON.stringify(locationsArray);
+        context.bindings.locationsNowObject = JSON.stringify(locationsObject);
 
-    const logPayload = {
-        people: peopleObject,
-        jobs: jobsObject,
-        groups: groupsObject,
-        locations: locationsObject
-    };
-    const logObject = await createLogObject(functionInvocationID, functionInvocationTime, functionName, logPayload);
-    const logBlob = await createLogBlob(logStorageAccount, logStorageKey, logStorageContainer, logObject);
-    context.log(logBlob);
+        const logPayload = {
+            people: peopleObject,
+            jobs: jobsObject,
+            groups: groupsObject,
+            locations: locationsObject
+        };
+        const logObject = await createLogObject(functionInvocationID, functionInvocationTime, functionName, logPayload);
+        const logBlob = await createLogBlob(logStorageAccount, logStorageKey, logStorageContainer, logObject);
+        context.log(logBlob);
 
-    const callbackMessage = await createCallbackMessage(logObject, 200);
-    context.bindings.callbackMessage = JSON.stringify(callbackMessage);
-    context.log(callbackMessage);
+        const callbackMessage = await createCallbackMessage(logObject, 200);
+        context.bindings.callbackMessage = JSON.stringify(callbackMessage);
+        context.log(callbackMessage);
 
-    const invocationEvent = await createEvent(functionInvocationID, functionInvocationTime, functionInvocationTimestamp, functionName, functionEventType, functionEventID, functionLogID, logStorageAccount, logStorageContainer, eventLabel, eventTags);
-    context.bindings.flynnEvent = JSON.stringify(invocationEvent);
-    context.log(invocationEvent);
+        const invocationEvent = await createEvent(functionInvocationID, functionInvocationTime, functionInvocationTimestamp, functionName, functionEventType, functionEventID, functionLogID, logStorageAccount, logStorageContainer, eventLabel, eventTags);
+        context.bindings.flynnEvent = JSON.stringify(invocationEvent);
+        context.log(invocationEvent);
 
-    context.bindings.triggerHRISPeopleReconcile = JSON.stringify(invocationEvent);
-    context.bindings.triggerHRISJobsReconcile = JSON.stringify(invocationEvent);
-    context.bindings.triggerHRISGroupsReconcile = JSON.stringify(invocationEvent);
-    context.bindings.triggerHRISLocationsReconcile = JSON.stringify(invocationEvent);
-    context.done(null, logBlob);
+        context.bindings.triggerHRISPeopleReconcile = JSON.stringify(invocationEvent);
+        context.bindings.triggerHRISJobsReconcile = JSON.stringify(invocationEvent);
+        context.bindings.triggerHRISGroupsReconcile = JSON.stringify(invocationEvent);
+        context.bindings.triggerHRISLocationsReconcile = JSON.stringify(invocationEvent);
+        context.done(null, logBlob);
+    } else {
+        context.done('Too few records. Aborting.');
+    }
 };
 
 export default viewIAMWPProcess;
