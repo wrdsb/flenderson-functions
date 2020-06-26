@@ -1,2 +1,2 @@
-# flenderson-functions
-Azure Functions app for Flenderson, our HR system(s) API interface
+# Archived
+Merged into [COSMOS](https://github.com/wrdsb/cosmos), June 2, 2020.
